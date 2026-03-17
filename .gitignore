@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# Models (large files)
+*.pt
+*.onnx
+*.engine
+
+# Test images
+notebooks/*.jpg
+notebooks/*.png
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (frontend)
+node_modules/
+dist/
+
+# Database
+*.db
