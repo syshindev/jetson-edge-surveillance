@@ -1,0 +1,10 @@
+[project]
+name = "jetson-edge-surveillance"
+version = "0.1.0"
+description = "Edge AI surveillance system"
+requires-python = ">=3.10"
+dependencies = [
+    "ultralytics",
+    "opencv-python",
+    "pydantic-settings",
+]
