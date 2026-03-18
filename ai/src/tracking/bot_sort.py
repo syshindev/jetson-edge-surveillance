@@ -5,7 +5,7 @@ class BoTSortTracker:
         self.model = YOLO(model_path)
     
     def update(self, frame):
-        results = self.model.track(frame, persist=True)
+        results = self.model.track(frame, persist=True, classes=[0])
         return results
     
     def reset(self):
