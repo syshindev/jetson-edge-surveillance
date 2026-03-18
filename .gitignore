@@ -27,6 +27,9 @@ Thumbs.db
 # Node (frontend)
 node_modules/
 dist/
+dist-ssr/
+*.local
+*.log
 
 # Database
 *.db
