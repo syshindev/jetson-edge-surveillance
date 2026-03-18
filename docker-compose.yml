@@ -1,0 +1,21 @@
+services:
+  ai:
+    build: ./ai
+    depends_on:
+      - backend
+    volumes:
+      - ./ai/src:/app/src
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/src:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
