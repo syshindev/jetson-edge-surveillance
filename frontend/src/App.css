@@ -39,6 +39,20 @@ body {
   overflow-y: auto;
 }
 
+.card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card::-webkit-scrollbar-track {
+  background: #1a1a2e;
+  border-radius: 3px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #e94560;
+  border-radius: 3px;
+}
+
 .card h2 {
   font-size: 1.1rem;
   margin-bottom: 12px;
