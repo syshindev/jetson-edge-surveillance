@@ -35,6 +35,8 @@ body {
   border-radius: 8px;
   padding: 16px;
   border: 1px solid #0f3460;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .card h2 {
