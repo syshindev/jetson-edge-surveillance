@@ -25,3 +25,10 @@ def create_event(track_id: int, zone_name: str, center_x: int, center_y: int, db
     db.add(event)
     db.commit()
     return event
+
+# Delete all events
+@router.delete("/events")
+def delete_events(db: Session = Depends(get_db)):
+    db.query(Event).delete()
+    db.commit()
+    return {"message": "All events deleted"}
