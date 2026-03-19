@@ -59,11 +59,15 @@ body {
   color: #e94560;
 }
 
+.video-stream {
+  max-height: none;
+  overflow: hidden;
+}
+
 .video-stream img {
   width: 100%;
   border-radius: 4px;
   background: #000;
-  min-height: 300px;
 }
 
 table {
