@@ -9,6 +9,7 @@ class Pipeline:
         self.tracker = BoTSortTracker(model_path)
         self.intrusion = IntrusionDetector(zones)
         self.api_url = api_url
+        self.sent_ids = set()   # Already reported track IDs
 
     def _send_event(self, event):
         try:
@@ -34,7 +35,9 @@ class Pipeline:
             # Check intrusion events
             events = self.intrusion.check(results)
             for event in events:
-                print(f"Intrusion: ID {event['track_id']} in {event['zone']}")
-                self._send_event(event)
+                if event["track_id"] not in self.sent_ids:
+                    print(f"Intrusion: ID {event['track_id']} in {event['zone']}")
+                    self._send_event(event)
+                    self.sent_ids.add(event["track_id"])
         
         self.source.release()
