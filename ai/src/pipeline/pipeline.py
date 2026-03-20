@@ -18,9 +18,10 @@ class Pipeline:
         self.api_url = api_url
         self.sent_ids = {"intrusion": set(), "loitering": set(), "line_crossing": set()}
 
-    def _send_event(self, event):
+    def _send_event(self, event, event_type: str):
         try:
             requests.post(f"{self.api_url}/events", params={
+                "event_type": event_type,
                 "track_id": event["track_id"],
                 "zone_name": event.get("zone", "line"),
                 "center_x": event.get("center", (0, 0))[0],
@@ -43,14 +44,14 @@ class Pipeline:
             for event in self.intrusion.check(results):
                 if event["track_id"] not in self.sent_ids["intrusion"]:
                     print(f"Intrusion: ID {event['track_id']} in {event['zone']}")
-                    self._send_event(event)
+                    self._send_event(event, "intrusion")
                     self.sent_ids["intrusion"].add(event["track_id"])
 
             # Check loitering events
             for event in self.loitering.check(results):
                 if event["track_id"] not in self.sent_ids["loitering"]:
                     print(f"Loitering: ID {event['track_id']} in {event['zone']} ({event['duration']}s)")
-                    self._send_event(event)
+                    self._send_event(event, "loitering")
                     self.sent_ids["loitering"].add(event["track_id"])
 
             # Check line crossing events
@@ -58,7 +59,7 @@ class Pipeline:
                 for event in detector.check(results):
                     if event["track_id"] not in self.sent_ids["line_crossing"]:
                         print(f"Line Crossing: ID {event['track_id']}")
-                        self._send_event(event)
+                        self._send_event(event, "line_crossing")
                         self.sent_ids["line_crossing"].add(event["track_id"])
         
         self.source.release()
