@@ -20,8 +20,8 @@ def get_events(db: Session = Depends(get_db)):
 
 # Create new event
 @router.post("/events")
-def create_event(track_id: int, zone_name: str, center_x: int, center_y: int, db: Session = Depends(get_db)):
-    event = Event(track_id=track_id, zone_name=zone_name, center_x=center_x, center_y=center_y)
+def create_event(event_type: str, track_id: int, zone_name: str, center_x: int, center_y: int, db: Session = Depends(get_db)):
+    event = Event(event_type=event_type, track_id=track_id, zone_name=zone_name, center_x=center_x, center_y=center_y)
     db.add(event)
     db.commit()
     return event
