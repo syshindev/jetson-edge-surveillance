@@ -17,13 +17,7 @@ function App() {
       <div className="header">
         <h1>DOBER <span className="subtitle">AI Surveillance</span></h1>
         <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            {darkMode ? (
-              <path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
-            ) : (
-              <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
-            )}
-          </svg>
+          <span className="material-icons-outlined">{darkMode ? "light_mode" : "dark_mode"}</span>
         </button>
       </div>
       <div className="grid">
