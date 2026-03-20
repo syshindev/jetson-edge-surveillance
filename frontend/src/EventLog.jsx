@@ -16,6 +16,7 @@ function EventLog() {
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Type</th>
                         <th>Track ID</th>
                         <th>Zone</th>
                         <th>Time</th>
@@ -25,6 +26,7 @@ function EventLog() {
                     {events.map((e) => (
                         <tr key={e.id}>
                             <td>{e.id}</td>
+                            <td>{e.event_type}</td>
                             <td>{e.track_id}</td>
                             <td>{e.zone_name}</td>
                             <td>{e.timestamp}</td>
