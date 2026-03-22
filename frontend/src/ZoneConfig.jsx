@@ -5,9 +5,12 @@ function ZoneConfig() {
     const [polygon, setPolygon] = useState("");
 
     const handleSubmit = () => {
-        const points = JSON.parse(polygon);
-        console.log("Zone saved:", { name: zoneName, polygon: points });
-        // TODO: send to backend
+        try {
+            const points = JSON.parse(polygon);
+            console.log("Zone saved:", { name: zoneName, polygon: points });
+        } catch {
+            console.error("Invalid polygon JSON");
+        }
     };
 
     return (

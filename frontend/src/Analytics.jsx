@@ -5,13 +5,15 @@ function Analytics() {
     const [zoneCounts, setZoneCounts] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8001/analytics/total")
+        fetch("http://localhost:8000/analytics/total")
             .then((res) => res.json())
-            .then((data) => setTotal(data.total));
+            .then((data) => setTotal(data.total))
+            .catch(() => {});
 
-        fetch("http://localhost:8001/analytics/zone-count")
+        fetch("http://localhost:8000/analytics/zone-count")
             .then((res) => res.json())
-            .then((data) => setZoneCounts(data));
+            .then((data) => { if (Array.isArray(data)) setZoneCounts(data); })
+            .catch(() => {});
     }, []);
 
     return (
