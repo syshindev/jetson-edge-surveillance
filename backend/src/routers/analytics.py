@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from datetime import datetime, timedelta
 from database import SessionLocal
 from models import Event
 
@@ -24,3 +25,46 @@ def zone_count(db: Session = Depends(get_db)):
 def total_count(db: Session = Depends(get_db)):
     count = db.query(func.count(Event.id)).scalar()
     return {"total": count}
+
+# Get event count per type
+@router.get("/analytics/type-count")
+def type_count(db: Session = Depends(get_db)):
+    results = db.query(Event.event_type, func.count(Event.id)).group_by(Event.event_type).all()
+    return [{"type": t, "count": c} for t, c in results]
+
+# Dashboard summary stats
+@router.get("/analytics/summary")
+def summary(db: Session = Depends(get_db)):
+    now = datetime.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    total = db.query(func.count(Event.id)).scalar()
+    today = db.query(func.count(Event.id)).filter(Event.timestamp >= today_start).scalar()
+    intrusions = db.query(func.count(Event.id)).filter(Event.event_type == "intrusion").scalar()
+    loitering = db.query(func.count(Event.id)).filter(Event.event_type == "loitering").scalar()
+    line_crossing = db.query(func.count(Event.id)).filter(Event.event_type == "line_crossing").scalar()
+    active_tracks = db.query(func.count(func.distinct(Event.track_id))).scalar()
+
+    return {
+        "total_events": total,
+        "today_events": today,
+        "intrusions": intrusions,
+        "loitering": loitering,
+        "line_crossing": line_crossing,
+        "active_tracks": active_tracks,
+    }
+
+# Recent alerts (last 10 events)
+@router.get("/analytics/recent-alerts")
+def recent_alerts(db: Session = Depends(get_db)):
+    events = db.query(Event).order_by(Event.timestamp.desc()).limit(10).all()
+    return [
+        {
+            "id": e.id,
+            "event_type": e.event_type,
+            "zone_name": e.zone_name,
+            "track_id": e.track_id,
+            "timestamp": e.timestamp.isoformat() if e.timestamp else None,
+        }
+        for e in events
+    ]
