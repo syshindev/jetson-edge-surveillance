@@ -289,6 +289,80 @@ html, body, #root {
   text-align: center;
 }
 
+/* View Mode Bar */
+.view-mode-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.view-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #0f3460;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.view-mode-btn .material-icons-outlined {
+  font-size: 1.1rem;
+}
+
+.view-mode-btn:hover {
+  background: rgba(233, 69, 96, 0.1);
+  color: #e94560;
+}
+
+.view-mode-btn.active {
+  background: #e94560;
+  color: #fff;
+  border-color: #e94560;
+}
+
+.light .view-mode-btn {
+  border-color: #ddd;
+}
+
+/* Stream Grid Layouts */
+.stream-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid-1x1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-2x2 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.grid-1plus3 {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.grid-1plus3 .main {
+  grid-row: 1 / 3;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  opacity: 0.4;
+}
+
 /* Grid */
 .grid {
   display: grid;

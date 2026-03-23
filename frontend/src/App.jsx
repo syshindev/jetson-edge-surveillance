@@ -15,10 +15,17 @@ const pages = [
   { id: "settings", label: "Settings", icon: "settings" },
 ];
 
+const viewModes = [
+  { id: "1x1", label: "1", icon: "crop_square", count: 1 },
+  { id: "2x2", label: "4", icon: "grid_view", count: 4 },
+  { id: "1+3", label: "1+3", icon: "view_comfy", count: 4 },
+];
+
 function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [activePage, setActivePage] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [viewMode, setViewMode] = useState("1x1");
 
   useEffect(() => {
     document.body.style.background = darkMode ? "#1a1a2e" : "#f0f2f5";
@@ -29,6 +36,39 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  const renderStreamView = () => {
+    switch (viewMode) {
+      case "1x1":
+        return (
+          <div className="stream-grid grid-1x1">
+            <div className="card video-stream">
+              <VideoStream streamId={0} />
+            </div>
+          </div>
+        );
+      case "2x2":
+        return (
+          <div className="stream-grid grid-2x2">
+            <div className="card video-stream"><VideoStream streamId={0} /></div>
+            <div className="card video-stream"><VideoStream streamId={1} /></div>
+            <div className="card video-stream"><VideoStream streamId={2} /></div>
+            <div className="card video-stream placeholder"><p>No Source</p></div>
+          </div>
+        );
+      case "1+3":
+        return (
+          <div className="stream-grid grid-1plus3">
+            <div className="card video-stream main"><VideoStream streamId={0} /></div>
+            <div className="card video-stream side"><VideoStream streamId={1} /></div>
+            <div className="card video-stream side"><VideoStream streamId={2} /></div>
+            <div className="card video-stream side placeholder"><p>No Source</p></div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const renderContent = () => {
     switch (activePage) {
       case "dashboard":
@@ -38,7 +78,7 @@ function App() {
             <div className="grid">
               <div className="card video-stream">
                 <h2>Live Stream</h2>
-                <VideoStream />
+                <VideoStream streamId={0} />
               </div>
               <div className="card">
                 <RecentAlerts />
@@ -48,9 +88,21 @@ function App() {
         );
       case "stream":
         return (
-          <div className="card video-stream full">
-            <VideoStream />
-          </div>
+          <>
+            <div className="view-mode-bar">
+              {viewModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  className={`view-mode-btn ${viewMode === mode.id ? "active" : ""}`}
+                  onClick={() => setViewMode(mode.id)}
+                >
+                  <span className="material-icons-outlined">{mode.icon}</span>
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+            {renderStreamView()}
+          </>
         );
       case "events":
         return (
