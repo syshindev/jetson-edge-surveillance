@@ -106,7 +106,7 @@ function App() {
           <h2 className="page-title">{pages.find((p) => p.id === activePage)?.label}</h2>
           <span className="live-clock">
             <span className="material-icons-outlined">schedule</span>
-            {currentTime.toLocaleDateString("ko-KR")} {currentTime.toLocaleTimeString("ko-KR")}
+            {currentTime.toLocaleDateString("en-US")} {currentTime.toLocaleTimeString("en-US")}
           </span>
         </div>
         {renderContent()}
