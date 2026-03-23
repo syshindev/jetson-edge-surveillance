@@ -1,6 +1,6 @@
-# Jetson Edge AI Surveillance
+# DOBER — AI Surveillance System
 
-Real-time video surveillance system powered by YOLO11n and BoTSORT, designed for NVIDIA Jetson Orin Nano Super. Features object detection, multi-object tracking, event detection, and a web-based monitoring dashboard.
+Real-time edge AI video surveillance system powered by YOLO11n and BoTSORT, designed for NVIDIA Jetson Orin Nano Super. Features object detection, multi-object tracking, event detection (intrusion, loitering, line crossing), and a web-based monitoring dashboard.
 
 ## Features
 
