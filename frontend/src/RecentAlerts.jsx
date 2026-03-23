@@ -41,7 +41,7 @@ function RecentAlerts() {
           return (
             <div className="alert-item" key={alert.id}>
               <span
-                className="material-icons-outlined alert-icon"
+                className="material-symbols-outlined alert-icon"
                 style={{ color: severity.color }}
               >
                 {severity.icon}

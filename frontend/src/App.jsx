@@ -17,8 +17,9 @@ const pages = [
 
 const viewModes = [
   { id: "1x1", label: "1", icon: "crop_square", count: 1 },
+  { id: "1x2", label: "2", icon: "view_column_2", count: 2 },
+  { id: "1x3", label: "3", icon: "view_week", count: 3 },
   { id: "2x2", label: "4", icon: "grid_view", count: 4 },
-  { id: "1+3", label: "1+3", icon: "view_comfy", count: 4 },
 ];
 
 function App() {
@@ -46,6 +47,21 @@ function App() {
             </div>
           </div>
         );
+      case "1x2":
+        return (
+          <div className="stream-grid grid-1x2">
+            <div className="card video-stream"><VideoStream streamId={0} /></div>
+            <div className="card video-stream"><VideoStream streamId={1} /></div>
+          </div>
+        );
+      case "1x3":
+        return (
+          <div className="stream-grid grid-1x3">
+            <div className="card video-stream"><VideoStream streamId={0} /></div>
+            <div className="card video-stream"><VideoStream streamId={1} /></div>
+            <div className="card video-stream"><VideoStream streamId={2} /></div>
+          </div>
+        );
       case "2x2":
         return (
           <div className="stream-grid grid-2x2">
@@ -53,15 +69,6 @@ function App() {
             <div className="card video-stream"><VideoStream streamId={1} /></div>
             <div className="card video-stream"><VideoStream streamId={2} /></div>
             <div className="card video-stream placeholder"><p>No Source</p></div>
-          </div>
-        );
-      case "1+3":
-        return (
-          <div className="stream-grid grid-1plus3">
-            <div className="card video-stream main"><VideoStream streamId={0} /></div>
-            <div className="card video-stream side"><VideoStream streamId={1} /></div>
-            <div className="card video-stream side"><VideoStream streamId={2} /></div>
-            <div className="card video-stream side placeholder"><p>No Source</p></div>
           </div>
         );
       default:
@@ -96,8 +103,7 @@ function App() {
                   className={`view-mode-btn ${viewMode === mode.id ? "active" : ""}`}
                   onClick={() => setViewMode(mode.id)}
                 >
-                  <span className="material-icons-outlined">{mode.icon}</span>
-                  {mode.label}
+                  <span className="material-symbols-outlined">{mode.icon}</span>
                 </button>
               ))}
             </div>
@@ -141,14 +147,14 @@ function App() {
               className={`nav-item ${activePage === page.id ? "active" : ""}`}
               onClick={() => setActivePage(page.id)}
             >
-              <span className="material-icons-outlined">{page.icon}</span>
+              <span className="material-symbols-outlined">{page.icon}</span>
               {page.label}
             </li>
           ))}
         </ul>
         <div className="sidebar-bottom">
           <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-            <span className="material-icons-outlined">{darkMode ? "light_mode" : "dark_mode"}</span>
+            <span className="material-symbols-outlined">{darkMode ? "light_mode" : "dark_mode"}</span>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
         </div>
@@ -157,7 +163,7 @@ function App() {
         <div className="content-header">
           <h2 className="page-title">{pages.find((p) => p.id === activePage)?.label}</h2>
           <span className="live-clock">
-            <span className="material-icons-outlined">schedule</span>
+            <span className="material-symbols-outlined">schedule</span>
             {currentTime.toLocaleDateString("en-US")} {currentTime.toLocaleTimeString("en-US")}
           </span>
         </div>

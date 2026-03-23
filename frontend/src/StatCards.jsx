@@ -35,7 +35,7 @@ function StatCards() {
 
   const renderCard = (card) => (
     <div className="stat-card" key={card.label}>
-      <span className="material-icons-outlined stat-icon" style={{ color: card.color }}>
+      <span className="material-symbols-outlined stat-icon" style={{ color: card.color }}>
         {card.icon}
       </span>
       <div className="stat-info">
