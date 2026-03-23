@@ -11,7 +11,7 @@ function StatCards() {
 
   useEffect(() => {
     const fetchStats = () => {
-      fetch("http://localhost:8000/analytics/summary")
+      fetch("http://localhost:8001/analytics/summary")
         .then((res) => res.json())
         .then((data) => { if (data.total_events !== undefined) setStats(data); })
         .catch(() => {});

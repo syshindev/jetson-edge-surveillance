@@ -6,7 +6,7 @@ from events.line_crossing import LineCrossingDetector
 import requests
 
 class Pipeline:
-    def __init__(self, source: str | int, model_path: str, zones: list[Zone], lines: list = None, api_url: str = "http://localhost:8000"):
+    def __init__(self, source: str | int, model_path: str, zones: list[Zone], lines: list = None, api_url: str = "http://localhost:8001"):
         self.source = VideoSource(source)
         self.tracker = BoTSortTracker(model_path)
         self.intrusion = IntrusionDetector(zones)

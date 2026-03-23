@@ -4,7 +4,7 @@ function EventLog() {
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/events")
+        fetch("http://localhost:8001/events")
         .then((res) => res.json())
         .then((data) => { if (Array.isArray(data)) setEvents(data); })
         .catch(() => {});

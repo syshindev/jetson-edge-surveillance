@@ -20,7 +20,7 @@ function RecentAlerts() {
 
   useEffect(() => {
     const fetchAlerts = () => {
-      fetch("http://localhost:8000/analytics/recent-alerts")
+      fetch("http://localhost:8001/analytics/recent-alerts")
         .then((res) => res.json())
         .then((data) => { if (Array.isArray(data)) setAlerts(data); })
         .catch(() => {});
