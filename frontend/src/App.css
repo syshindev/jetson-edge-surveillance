@@ -145,7 +145,7 @@ html, body, #root {
 
 /* Full-width card for single-page views */
 .card.full {
-  max-height: none;
+  max-height: calc(100vh - 120px);
 }
 
 /* Dark mode */
@@ -393,6 +393,13 @@ html, body, #root {
 /* Video */
 .video-stream { max-height: none; overflow: hidden; }
 .video-stream img { width: 100%; border-radius: 4px; background: #000; display: block; }
+
+/* Event Tabs */
+.event-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.event-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid #0f3460; background: none; color: inherit; cursor: pointer; font-size: 0.85rem; font-weight: 500; font-family: inherit; transition: background 0.2s, color 0.2s; }
+.event-tab:hover { background: rgba(233, 69, 96, 0.1); color: #e94560; }
+.event-tab.active { background: #e94560; color: #fff; border-color: #e94560; }
+.light .event-tab { border-color: #ddd; }
 
 /* Table */
 table { width: 100%; border-collapse: collapse; }
