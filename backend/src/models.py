@@ -12,3 +12,13 @@ class Event(Base):
     center_x = Column(Integer)
     center_y = Column(Integer)
     timestamp = Column(DateTime, default=datetime.now)
+
+class ZoneModel(Base):
+    __tablename__ = "zones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    stream_id = Column(Integer)
+    name = Column(String)
+    zone_type = Column(String)
+    polygon = Column(String)
+    

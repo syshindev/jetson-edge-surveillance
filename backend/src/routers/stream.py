@@ -1,4 +1,5 @@
 import sys
+import json
 import asyncio
 
 import cv2
@@ -12,26 +13,14 @@ from events.loitering import LoiteringDetector
 from events.line_crossing import LineCrossingDetector
 
 from database import SessionLocal
-from models import Event
+from models import Event, ZoneModel
 
 router = APIRouter()
 
-STREAM_CONFIG = [
-    {
-        "source": "C:/Users/gmission/Desktop/video-test/GX012760.MP4",
-        "type": "intrusion",
-        "zone": [[925, 450], [1346, 526], [827, 860], [650, 657]],
-    },
-    {
-        "source": "C:/Users/gmission/Desktop/video-test/GX012761.MP4",
-        "type": "line_crossing",
-        "line": [(514, 741), (921, 794)],
-    },
-    {
-        "source": "C:/Users/gmission/Desktop/video-test/GX012762.MP4",
-        "type": "loitering",
-        "zone": [[854, 633], [1176, 583], [1241, 744], [925, 809]],
-    },
+VIDEO_SOURCES = [
+    "C:/Users/gmission/Desktop/video-test/GX012760.MP4",
+    "C:/Users/gmission/Desktop/video-test/GX012761.MP4",
+    "C:/Users/gmission/Desktop/video-test/GX012762.MP4",
 ]
 
 def save_event(event_type, track_id, zone_name, center_x, center_y):
@@ -49,25 +38,35 @@ def save_event(event_type, track_id, zone_name, center_x, center_y):
     finally:
         db.close()
 
+def load_zones(stream_id):
+    db = SessionLocal()
+    try:
+        return db.query(ZoneModel).filter(ZoneModel.stream_id == stream_id).all()
+    finally:
+        db.close()
+
 @router.websocket("/ws/stream/{stream_id}")
 async def stream(websocket: WebSocket, stream_id: int = 0):
     await websocket.accept()
 
-    config = STREAM_CONFIG[stream_id]
-    cap = cv2.VideoCapture(config["source"])
+    cap = cv2.VideoCapture(VIDEO_SOURCES[stream_id])
     model = YOLO("yolo11n.pt")
 
-    # Create event detector
+    # Load zones from DB
     sent_ids = set()
-    detector = None
-    if config["type"] == "intrusion":
-        zone = Zone("intrusion", config["zone"])
-        detector = IntrusionDetector([zone])
-    elif config["type"] == "loitering":
-        zone = Zone("loitering", config["zone"])
-        detector = LoiteringDetector([zone], threshold=5.0)
-    elif config["type"] == "line_crossing":
-        detector = LineCrossingDetector(config["line"][0], config["line"][1])
+    detectors = []
+    db_zones = load_zones(stream_id)
+
+    for z in db_zones:
+        polygon = json.loads(z.polygon)
+        if z.zone_type == "intrusion":
+            zone = Zone(z.name, polygon)
+            detectors.append({"type": "intrusion", "detector": IntrusionDetector([zone]), "polygon": polygon})
+        elif z.zone_type == "loitering":
+            zone = Zone(z.name, polygon)
+            detectors.append({"type": "loitering", "detector": LoiteringDetector([zone], threshold=5.0), "polygon": polygon})
+        elif z.zone_type == "line_crossing":
+            detectors.append({"type": "line_crossing", "detector": LineCrossingDetector(tuple(polygon[0]), tuple(polygon[1])), "line": polygon})
 
     frame_count = 0
     last_annotated = None
@@ -85,39 +84,38 @@ async def stream(websocket: WebSocket, stream_id: int = 0):
                 results = model.track(frame, persist=True, conf=0.5, classes=[0], verbose=False)
                 annotated = results[0].plot(line_width=1, font_size=0.5)
 
-                # Draw ROI based on stream type
-                if config["type"] in ("intrusion", "loitering"):
-                    pts = np.array(config["zone"]).reshape((-1, 1, 2))
-                    cv2.polylines(annotated, [pts], True, (0, 255, 0), 2)
-                    cv2.putText(annotated, config["type"], tuple(config["zone"][0]),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-                elif config["type"] == "line_crossing":
-                    cv2.line(annotated, config["line"][0], config["line"][1], (0, 255, 0), 2)
-                    cv2.putText(annotated, "line_crossing", config["line"][0],
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                # Draw ROI and check events for each zone
+                for d in detectors:
+                    events = d["detector"].check(results)
+                    has_event = len(events) > 0
 
-                last_annotated = annotated
-
-                # Check events and save to DB
-                if detector:
-                    events = detector.check(results)
+                    if d["type"] in ("intrusion", "loitering"):
+                        pts = np.array(d["polygon"]).reshape((-1, 1, 2))
+                        if has_event:
+                            overlay = annotated.copy()
+                            cv2.fillPoly(overlay, [pts], (96, 69, 233))
+                            cv2.addWeighted(overlay, 0.2, annotated, 0.8, 0, annotated)
+                        cv2.polylines(annotated, [pts], True, (96, 69, 233), 2)
+                    elif d["type"] == "line_crossing":
+                        cv2.line(annotated, tuple(d["line"][0]), tuple(d["line"][1]), (96, 69, 233), 2)
                     for event in events:
                         track_id = event["track_id"]
                         if track_id not in sent_ids:
                             sent_ids.add(track_id)
                             save_event(
-                                event_type=config["type"],
+                                event_type=d["type"],
                                 track_id=track_id,
-                                zone_name=config["type"],
+                                zone_name=d["type"],
                                 center_x=event.get("center", (0, 0))[0],
                                 center_y=event.get("center", (0, 0))[1],
                             )
+
+                last_annotated = annotated
             else:
                 annotated = last_annotated if last_annotated is not None else frame
 
-            # Send annotated frame (resized for speed)
-            small = cv2.resize(annotated, (960, 540))
-            _, buffer = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])
+            # Send annotated frame
+            _, buffer = cv2.imencode(".jpg", annotated)
             await websocket.send_bytes(buffer.tobytes())
             await asyncio.sleep(0.033)
     finally:
