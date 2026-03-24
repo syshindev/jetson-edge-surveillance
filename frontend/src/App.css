@@ -363,14 +363,13 @@ html, body, #root {
 
 /* Grid */
 .grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-auto-rows: 1fr;
+  display: flex;
   gap: 16px;
   margin-bottom: 16px;
 }
 
-.grid .card { max-height: none; }
+.grid .video-stream { flex: 2; max-height: none; }
+.grid .alerts-card { flex: 1; overflow-y: auto; }
 
 .bottom-grid {
   display: grid;
@@ -407,6 +406,15 @@ td { font-size: 0.9rem; }
 .analytics li { padding: 4px 0; }
 
 /* Zone Config */
-.zone-config input { width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 4px; }
-.zone-config button { padding: 8px 16px; border-radius: 4px; border: none; background: #e94560; color: white; cursor: pointer; font-weight: bold; }
+.zone-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+.zone-controls select, .zone-controls input { flex: 1; padding: 8px; border-radius: 4px; font-family: inherit; font-size: 0.85rem; }
+.zone-canvas-wrapper { margin-bottom: 12px; }
+.zone-actions { display: flex; justify-content: space-between; align-items: center; }
+.zone-actions div { display: flex; gap: 8px; }
+.zone-config button { padding: 8px 16px; border-radius: 4px; border: none; background: #e94560; color: white; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
 .zone-config button:hover { background: #c73652; }
+.zone-config button:disabled { opacity: 0.4; cursor: not-allowed; }
+.save-msg { font-size: 0.85rem; color: #e94560; font-weight: 500; display: flex; align-items: center; }
+
+.dark .zone-controls select, .dark .zone-controls input { background: #1a1a2e; color: #e0e0e0; border: 1px solid #0f3460; }
+.light .zone-controls select, .light .zone-controls input { background: #f9f9f9; color: #333; border: 1px solid #ddd; }

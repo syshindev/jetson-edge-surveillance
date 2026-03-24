@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import VideoStream from "./VideoStream";
 import EventLog from "./EventLog";
 import Analytics from "./Analytics";
@@ -27,6 +27,8 @@ function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [viewMode, setViewMode] = useState("1x1");
+  const [videoHeight, setVideoHeight] = useState(400);
+  const videoCardRef = useRef(null);
 
   useEffect(() => {
     document.body.style.background = darkMode ? "#1a1a2e" : "#f0f2f5";
@@ -36,6 +38,16 @@ function App() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (videoCardRef.current) {
+        setVideoHeight(videoCardRef.current.offsetHeight);
+      }
+    });
+    if (videoCardRef.current) observer.observe(videoCardRef.current);
+    return () => observer.disconnect();
+  }, [activePage]);
 
   const renderStreamView = () => {
     switch (viewMode) {
@@ -83,11 +95,11 @@ function App() {
           <>
             <StatCards />
             <div className="grid">
-              <div className="card video-stream">
+              <div className="card video-stream" ref={videoCardRef}>
                 <h2>Live Stream</h2>
                 <VideoStream streamId={0} />
               </div>
-              <div className="card">
+              <div className="card alerts-card" style={{ maxHeight: videoHeight }}>
                 <RecentAlerts />
               </div>
             </div>
