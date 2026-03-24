@@ -7,6 +7,12 @@ const eventTabs = [
     { id: "line_crossing", label: "Line Crossing" },
 ];
 
+const labelMap = {
+    intrusion: "Intrusion",
+    loitering: "Loitering",
+    line_crossing: "Line Crossing",
+};
+
 function EventLog() {
     const [events, setEvents] = useState([]);
     const [activeTab, setActiveTab] = useState("all");
@@ -45,7 +51,6 @@ function EventLog() {
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Type</th>
                         <th>Track ID</th>
                         <th>Zone</th>
@@ -55,11 +60,10 @@ function EventLog() {
                 <tbody>
                     {filtered.map((e) => (
                         <tr key={e.id}>
-                            <td>{e.id}</td>
-                            <td>{e.event_type}</td>
+                            <td>{labelMap[e.event_type] || e.event_type}</td>
                             <td>{e.track_id}</td>
-                            <td>{e.zone_name}</td>
-                            <td>{e.timestamp}</td>
+                            <td>{labelMap[e.zone_name] || e.zone_name}</td>
+                            <td>{e.timestamp ? new Date(e.timestamp).toLocaleTimeString("en-US") : ""}</td>
                         </tr>
                     ))}
                 </tbody>

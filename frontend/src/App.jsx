@@ -129,14 +129,10 @@ function App() {
           </div>
         );
       case "analytics":
-        return (
-          <div className="card analytics full">
-            <Analytics />
-          </div>
-        );
+        return <Analytics />;
       case "settings":
         return (
-          <div className="card zone-config full">
+          <div className="card zone-config no-scroll">
             <ZoneConfig />
           </div>
         );

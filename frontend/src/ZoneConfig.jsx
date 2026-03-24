@@ -6,6 +6,7 @@ function ZoneConfig() {
     const [points, setPoints] = useState([]);
     const [streamId, setStreamId] = useState(0);
     const [zoneType, setZoneType] = useState("intrusion");
+    const [zoneName, setZoneName] = useState("");
     const [frameLoaded, setFrameLoaded] = useState(false);
     const [saveMsg, setSaveMsg] = useState("");
 
@@ -86,12 +87,21 @@ function ZoneConfig() {
 
     const handleSave = () => {
         const minPoints = zoneType === "line_crossing" ? 2 : 3;
-        if (points.length < minPoints) return;
+        if (!zoneName.trim()) {
+            setSaveMsg("Enter a zone name.");
+            setTimeout(() => setSaveMsg(""), 3000);
+            return;
+        }
+        if (points.length < minPoints) {
+            setSaveMsg(`Draw at least ${minPoints} points.`);
+            setTimeout(() => setSaveMsg(""), 3000);
+            return;
+        }
         // Delete existing zones for this stream first
         fetch(`http://localhost:8001/zones/${streamId}`, { method: "DELETE" })
         .then(() => {
             // Save new zone
-            return fetch(`http://localhost:8001/zones?stream_id=${streamId}&name=${zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
+            return fetch(`http://localhost:8001/zones?stream_id=${streamId}&name=${zoneName || zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
                 method: "POST",
             });
         })
@@ -114,6 +124,12 @@ function ZoneConfig() {
                     <option value="loitering">Loitering</option>
                     <option value="line_crossing">Line Crossing</option>
                 </select>
+                <input
+                    type="text"
+                    placeholder="Zone name (e.g. Front Door)"
+                    value={zoneName}
+                    onChange={(e) => setZoneName(e.target.value)}
+                />
             </div>
             <div className="zone-canvas-wrapper">
                 <canvas
@@ -126,10 +142,10 @@ function ZoneConfig() {
             <div className="zone-actions">
                 <div>
                     <button onClick={handleClear}>Clear</button>
-                    <button onClick={handleSave} disabled={points.length < (zoneType === "line_crossing" ? 2 : 3)}>Save Zone</button>
-                    {saveMsg && <span className="save-msg">{saveMsg}</span>}
+                    <button onClick={handleSave}>Save Zone</button>
                 </div>
             </div>
+            {saveMsg && <div className="toast">{saveMsg}</div>}
         </div>
     );
 }

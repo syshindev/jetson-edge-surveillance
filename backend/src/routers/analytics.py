@@ -54,6 +54,20 @@ def summary(db: Session = Depends(get_db)):
         "active_tracks": active_tracks,
     }
 
+# Hourly event counts (today 00:00 ~ 23:00)
+@router.get("/analytics/hourly")
+def hourly_count(db: Session = Depends(get_db)):
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    hours = []
+    for i in range(24):
+        start = today + timedelta(hours=i)
+        end = start + timedelta(hours=1)
+        count = db.query(func.count(Event.id)).filter(
+            Event.timestamp >= start, Event.timestamp < end
+        ).scalar()
+        hours.append({"hour": start.strftime("%H:%M"), "count": count})
+    return hours
+
 # Recent alerts (last 10 events)
 @router.get("/analytics/recent-alerts")
 def recent_alerts(db: Session = Depends(get_db)):

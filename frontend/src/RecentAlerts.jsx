@@ -6,6 +6,12 @@ const severityMap = {
   line_crossing: { color: "#3b82f6", icon: "swap_horiz" },
 };
 
+const labelMap = {
+  intrusion: "Intrusion",
+  loitering: "Loitering",
+  line_crossing: "Line Crossing",
+};
+
 function timeAgo(timestamp) {
   if (!timestamp) return "";
   const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
@@ -47,7 +53,7 @@ function RecentAlerts() {
                 {severity.icon}
               </span>
               <div className="alert-info">
-                <span className="alert-type">{alert.event_type}</span>
+                <span className="alert-type">{labelMap[alert.event_type] || alert.event_type}</span>
                 <span className="alert-detail">
                   Zone: {alert.zone_name} · Track #{alert.track_id}
                 </span>
