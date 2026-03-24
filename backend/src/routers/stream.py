@@ -61,12 +61,12 @@ async def stream(websocket: WebSocket, stream_id: int = 0):
         polygon = json.loads(z.polygon)
         if z.zone_type == "intrusion":
             zone = Zone(z.name, polygon)
-            detectors.append({"type": "intrusion", "detector": IntrusionDetector([zone]), "polygon": polygon})
+            detectors.append({"type": "intrusion", "name": z.name, "detector": IntrusionDetector([zone]), "polygon": polygon})
         elif z.zone_type == "loitering":
             zone = Zone(z.name, polygon)
-            detectors.append({"type": "loitering", "detector": LoiteringDetector([zone], threshold=5.0), "polygon": polygon})
+            detectors.append({"type": "loitering", "name": z.name, "detector": LoiteringDetector([zone], threshold=5.0), "polygon": polygon})
         elif z.zone_type == "line_crossing":
-            detectors.append({"type": "line_crossing", "detector": LineCrossingDetector(tuple(polygon[0]), tuple(polygon[1])), "line": polygon})
+            detectors.append({"type": "line_crossing", "name": z.name, "detector": LineCrossingDetector(tuple(polygon[0]), tuple(polygon[1])), "line": polygon})
 
     frame_count = 0
     last_annotated = None
@@ -105,7 +105,7 @@ async def stream(websocket: WebSocket, stream_id: int = 0):
                             save_event(
                                 event_type=d["type"],
                                 track_id=track_id,
-                                zone_name=d["type"],
+                                zone_name=d["name"],
                                 center_x=event.get("center", (0, 0))[0],
                                 center_y=event.get("center", (0, 0))[1],
                             )
