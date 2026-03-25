@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { API_BASE } from "./constants";
 
 function ZoneConfig() {
     const canvasRef = useRef(null);
@@ -10,26 +11,14 @@ function ZoneConfig() {
     const [frameLoaded, setFrameLoaded] = useState(false);
     const [saveMsg, setSaveMsg] = useState("");
 
-    // Load first frame from stream
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8001/ws/stream/${streamId}`);
-        ws.binaryType = "arraybuffer";
-
-        ws.onmessage = (event) => {
-            const blob = new Blob([event.data], { type: "image/jpeg" });
-            const url = URL.createObjectURL(blob);
-            const img = new Image();
-            img.onload = () => {
-                imgRef.current = img;
-                setFrameLoaded(true);
-                drawCanvas(img, points);
-                URL.revokeObjectURL(url);
-            };
-            img.src = url;
-            ws.close();
+        const img = new Image();
+        img.onload = () => {
+            imgRef.current = img;
+            setFrameLoaded(true);
+            drawCanvas(img, points);
         };
-
-        return () => ws.close();
+        img.src = `${API_BASE}/snapshot/${streamId}`;
     }, [streamId]);
 
     const drawCanvas = (img, pts) => {
@@ -40,7 +29,6 @@ function ZoneConfig() {
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
 
-        // Draw points and lines
         if (pts.length > 0) {
             ctx.strokeStyle = "#e94560";
             ctx.lineWidth = 2;
@@ -57,7 +45,6 @@ function ZoneConfig() {
             }
             ctx.stroke();
 
-            // Draw dots
             pts.forEach((pt) => {
                 ctx.beginPath();
                 ctx.arc(pt[0], pt[1], 5, 0, Math.PI * 2);
@@ -97,15 +84,14 @@ function ZoneConfig() {
             setTimeout(() => setSaveMsg(""), 3000);
             return;
         }
-        // Delete existing zones for this stream first
-        fetch(`http://localhost:8001/zones/${streamId}`, { method: "DELETE" })
+        fetch(`${API_BASE}/zones/${streamId}`, { method: "DELETE" })
         .then(() => {
-            // Save new zone
-            return fetch(`http://localhost:8001/zones?stream_id=${streamId}&name=${zoneName || zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
+            return fetch(`${API_BASE}/zones?stream_id=${streamId}&name=${zoneName || zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
                 method: "POST",
             });
         })
         .then((res) => res.json())
+        .then(() => fetch(`${API_BASE}/reload-zones/${streamId}`, { method: "POST" }))
         .then(() => { setSaveMsg("Zone saved!"); setTimeout(() => setSaveMsg(""), 3000); })
         .catch(() => { setSaveMsg("Failed to save."); setTimeout(() => setSaveMsg(""), 3000); });
     };
