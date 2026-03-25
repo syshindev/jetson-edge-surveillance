@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE, LABEL_MAP } from "./constants";
 
 const eventTabs = [
     { id: "all", label: "All" },
@@ -7,19 +8,13 @@ const eventTabs = [
     { id: "line_crossing", label: "Line Crossing" },
 ];
 
-const labelMap = {
-    intrusion: "Intrusion",
-    loitering: "Loitering",
-    line_crossing: "Line Crossing",
-};
-
 function EventLog() {
     const [events, setEvents] = useState([]);
     const [activeTab, setActiveTab] = useState("all");
 
     useEffect(() => {
         const fetchEvents = () => {
-            fetch("http://localhost:8001/events")
+            fetch(`${API_BASE}/events`)
             .then((res) => res.json())
             .then((data) => { if (Array.isArray(data)) setEvents(data); })
             .catch(() => {});
@@ -60,9 +55,9 @@ function EventLog() {
                 <tbody>
                     {filtered.map((e) => (
                         <tr key={e.id}>
-                            <td>{labelMap[e.event_type] || e.event_type}</td>
+                            <td>{LABEL_MAP[e.event_type] || e.event_type}</td>
                             <td>{e.track_id}</td>
-                            <td>{labelMap[e.zone_name] || e.zone_name}</td>
+                            <td>{e.zone_name}</td>
                             <td>{e.timestamp ? new Date(e.timestamp).toLocaleTimeString("en-US") : ""}</td>
                         </tr>
                     ))}

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
 from database import Base
 
+
 class Event(Base):
     __tablename__ = "events"
 
@@ -13,6 +14,7 @@ class Event(Base):
     center_y = Column(Integer)
     timestamp = Column(DateTime, default=datetime.now)
 
+
 class ZoneModel(Base):
     __tablename__ = "zones"
 
@@ -21,4 +23,3 @@ class ZoneModel(Base):
     name = Column(String)
     zone_type = Column(String)
     polygon = Column(String)
-    

@@ -2,41 +2,33 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
-from database import SessionLocal
+from database import get_db
 from models import Event
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-# Get event count per zone
 @router.get("/analytics/zone-count")
 def zone_count(db: Session = Depends(get_db)):
     results = db.query(Event.zone_name, func.count(Event.id)).group_by(Event.zone_name).all()
     return [{"zone": zone, "count": count} for zone, count in results]
 
-# Get total event count
+
 @router.get("/analytics/total")
 def total_count(db: Session = Depends(get_db)):
     count = db.query(func.count(Event.id)).scalar()
     return {"total": count}
 
-# Get event count per type
+
 @router.get("/analytics/type-count")
 def type_count(db: Session = Depends(get_db)):
     results = db.query(Event.event_type, func.count(Event.id)).group_by(Event.event_type).all()
     return [{"type": t, "count": c} for t, c in results]
 
-# Dashboard summary stats
+
 @router.get("/analytics/summary")
 def summary(db: Session = Depends(get_db)):
-    now = datetime.now()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     total = db.query(func.count(Event.id)).scalar()
     today = db.query(func.count(Event.id)).filter(Event.timestamp >= today_start).scalar()
@@ -54,7 +46,7 @@ def summary(db: Session = Depends(get_db)):
         "active_tracks": active_tracks,
     }
 
-# Hourly event counts (today 00:00 ~ 23:00)
+
 @router.get("/analytics/hourly")
 def hourly_count(db: Session = Depends(get_db)):
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -68,7 +60,7 @@ def hourly_count(db: Session = Depends(get_db)):
         hours.append({"hour": start.strftime("%H:%M"), "count": count})
     return hours
 
-# Recent alerts (last 10 events)
+
 @router.get("/analytics/recent-alerts")
 def recent_alerts(db: Session = Depends(get_db)):
     events = db.query(Event).order_by(Event.timestamp.desc()).limit(10).all()

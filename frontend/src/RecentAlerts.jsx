@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
+import { API_BASE, LABEL_MAP } from "./constants";
 
 const severityMap = {
   intrusion: { color: "#ef4444", icon: "error" },
   loitering: { color: "#f59e0b", icon: "schedule" },
   line_crossing: { color: "#3b82f6", icon: "swap_horiz" },
-};
-
-const labelMap = {
-  intrusion: "Intrusion",
-  loitering: "Loitering",
-  line_crossing: "Line Crossing",
 };
 
 function timeAgo(timestamp) {
@@ -26,7 +21,7 @@ function RecentAlerts() {
 
   useEffect(() => {
     const fetchAlerts = () => {
-      fetch("http://localhost:8001/analytics/recent-alerts")
+      fetch(`${API_BASE}/analytics/recent-alerts`)
         .then((res) => res.json())
         .then((data) => { if (Array.isArray(data)) setAlerts(data); })
         .catch(() => {});
@@ -53,7 +48,7 @@ function RecentAlerts() {
                 {severity.icon}
               </span>
               <div className="alert-info">
-                <span className="alert-type">{labelMap[alert.event_type] || alert.event_type}</span>
+                <span className="alert-type">{LABEL_MAP[alert.event_type] || alert.event_type}</span>
                 <span className="alert-detail">
                   Zone: {alert.zone_name} · Track #{alert.track_id}
                 </span>

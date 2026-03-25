@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE } from "./constants";
 
 function StatCards() {
   const [stats, setStats] = useState({
@@ -11,7 +12,7 @@ function StatCards() {
 
   useEffect(() => {
     const fetchStats = () => {
-      fetch("http://localhost:8001/analytics/summary")
+      fetch(`${API_BASE}/analytics/summary`)
         .then((res) => res.json())
         .then((data) => { if (data.total_events !== undefined) setStats(data); })
         .catch(() => {});

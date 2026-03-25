@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE, LABEL_MAP } from "./constants";
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend,
@@ -7,12 +8,6 @@ import {
 
 const COLORS = ["#e94560", "#f59e0b", "#3b82f6"];
 
-const labelMap = {
-    intrusion: "Intrusion",
-    loitering: "Loitering",
-    line_crossing: "Line Crossing",
-};
-
 function Analytics() {
     const [typeCounts, setTypeCounts] = useState([]);
     const [hourly, setHourly] = useState([]);
@@ -20,21 +15,21 @@ function Analytics() {
 
     useEffect(() => {
         const fetchData = () => {
-            fetch("http://localhost:8001/analytics/type-count")
+            fetch(`${API_BASE}/analytics/type-count`)
                 .then((res) => res.json())
                 .then((data) => {
                     if (Array.isArray(data)) {
-                        setTypeCounts(data.map((d) => ({ ...d, label: labelMap[d.type] || d.type })));
+                        setTypeCounts(data.map((d) => ({ ...d, label: LABEL_MAP[d.type] || d.type })));
                     }
                 })
                 .catch(() => {});
 
-            fetch("http://localhost:8001/analytics/total")
+            fetch(`${API_BASE}/analytics/total`)
                 .then((res) => res.json())
                 .then((data) => setTotal(data.total))
                 .catch(() => {});
 
-            fetch("http://localhost:8001/analytics/hourly")
+            fetch(`${API_BASE}/analytics/hourly`)
                 .then((res) => res.json())
                 .then((data) => { if (Array.isArray(data)) setHourly(data); })
                 .catch(() => {});

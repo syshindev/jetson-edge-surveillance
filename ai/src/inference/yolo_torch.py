@@ -2,7 +2,8 @@ from ultralytics import YOLO
 from .base import BaseDetector, Detection
 import numpy as np
 
-class YoloTorchDetector(BaseDetector):
+
+class YoloDetector(BaseDetector):
     def __init__(self, model_path: str = "yolo11n.pt", confidence: float = 0.5):
         self.model = YOLO(model_path)
         self.confidence = confidence
