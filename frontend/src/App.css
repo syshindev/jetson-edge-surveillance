@@ -397,7 +397,8 @@ html, body, #root {
 
 /* Video */
 .video-stream { max-height: none; overflow: hidden; }
-.video-stream img { width: 100%; border-radius: 4px; background: #000; display: block; }
+.video-stream img,
+.video-stream video { width: 100%; border-radius: 4px; background: #000; display: block; }
 
 /* Event Tabs */
 .event-tabs { display: flex; gap: 8px; margin-bottom: 12px; }

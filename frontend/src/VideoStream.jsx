@@ -1,23 +1,73 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { API_BASE } from "./constants";
 
 function VideoStream({ streamId = 0 }) {
+    const videoRef = useRef(null);
     const imgRef = useRef(null);
+    const [webrtcReady, setWebrtcReady] = useState(false);
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8001/ws/stream/${streamId}`);
-        ws.binaryType = "arraybuffer";
+        const pc = new RTCPeerConnection();
 
-        ws.onmessage = (event) => {
-            const blob = new Blob([event.data], { type: "image/jpeg" });
-            const url = URL.createObjectURL(blob);
-            if (imgRef.current.src) URL.revokeObjectURL(imgRef.current.src);
-            imgRef.current.src = url;
+        pc.ontrack = (event) => {
+            videoRef.current.srcObject = event.streams[0];
+            setWebrtcReady(true);
         };
 
-        return () => ws.close();
+        pc.addTransceiver("video", { direction: "recvonly" });
+        pc.createOffer().then((offer) => {
+            return pc.setLocalDescription(offer);
+        }).then(() => {
+            return new Promise((resolve) => {
+                if (pc.iceGatheringState === "complete") {
+                    resolve();
+                } else {
+                    const timeout = setTimeout(resolve, 500);
+                    pc.onicegatheringstatechange = () => {
+                        if (pc.iceGatheringState === "complete") {
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    };
+                }
+            });
+        }).then(() => {
+            return fetch(`${API_BASE}/webrtc/offer/${streamId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    sdp: pc.localDescription.sdp,
+                    type: pc.localDescription.type,
+                }),
+            });
+        })
+        .then((res) => res.json())
+        .then((answer) => {
+            pc.setRemoteDescription(new RTCSessionDescription(answer));
+        });
+
+        return () => {
+            pc.close();
+            setWebrtcReady(false);
+        };
     }, [streamId]);
 
-    return <img ref={imgRef} alt="Video Stream" />;
+    return (
+        <div style={{ position: "relative" }}>
+            <img
+                ref={imgRef}
+                src={`${API_BASE}/mjpeg/${streamId}`}
+                style={{ width: "100%", display: webrtcReady ? "none" : "block" }}
+            />
+            <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{ width: "100%", display: webrtcReady ? "block" : "none" }}
+            />
+        </div>
+    );
 }
 
 export default VideoStream;
