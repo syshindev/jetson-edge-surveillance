@@ -13,6 +13,7 @@ class Event(Base):
     center_x = Column(Integer)
     center_y = Column(Integer)
     timestamp = Column(DateTime, default=datetime.now)
+    stream_id = Column(Integer, default=0)
 
 
 class ZoneModel(Base):

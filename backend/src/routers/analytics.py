@@ -62,8 +62,11 @@ def hourly_count(db: Session = Depends(get_db)):
 
 
 @router.get("/analytics/recent-alerts")
-def recent_alerts(db: Session = Depends(get_db)):
-    events = db.query(Event).order_by(Event.timestamp.desc()).limit(10).all()
+def recent_alerts(stream_id: int = None, db: Session = Depends(get_db)):
+    query = db.query(Event).order_by(Event.timestamp.desc())
+    if stream_id is not None:
+        query = query.filter(Event.stream_id == stream_id)
+    events = query.limit(10).all()
     return [
         {
             "id": e.id,
@@ -74,3 +77,13 @@ def recent_alerts(db: Session = Depends(get_db)):
         }
         for e in events
     ]
+
+@router.get("/analytics/by-stream")
+def by_stream(db: Session = Depends(get_db)):
+    results = db.query(Event.stream_id, Event.event_type, func.count(Event.id)).group_by(Event.stream_id, Event.event_type).all()
+    data = {}
+    for stream_id, event_type, count in results:
+        if stream_id not in data:
+            data[stream_id] = {"stream_id": stream_id, "intrusion": 0, "loitering": 0, "line_crossing": 0}
+        data[stream_id][event_type] = count
+    return list(data.values())

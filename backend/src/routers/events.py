@@ -8,7 +8,7 @@ router = APIRouter()
 
 @router.get("/events")
 def get_events(db: Session = Depends(get_db)):
-    return db.query(Event).all()
+    return db.query(Event).order_by(Event.timestamp.desc()).all()
 
 
 @router.post("/events")
