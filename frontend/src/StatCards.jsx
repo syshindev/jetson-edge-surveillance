@@ -10,28 +10,40 @@ function StatCards() {
     line_crossing: 0,
   });
 
-  useEffect(() => {
-    const fetchStats = () => {
-      fetch(`${API_BASE}/analytics/summary`)
-        .then((res) => res.json())
-        .then((data) => { if (data.total_events !== undefined) setStats(data); })
-        .catch(() => {});
-    };
+  const fetchStats = () => {
+    fetch(`${API_BASE}/analytics/summary`)
+      .then((res) => res.json())
+      .then((data) => { if (data.total_events !== undefined) setStats(data); })
+      .catch(() => {});
+  };
 
+  useEffect(() => {
     fetchStats();
     const interval = setInterval(fetchStats, 5000);
-    return () => clearInterval(interval);
+    const onRefresh = () => fetchStats();
+    window.addEventListener("data-refresh", onRefresh);
+    return () => { clearInterval(interval); window.removeEventListener("data-refresh", onRefresh); };
   }, []);
 
+  const handleDelete = (eventType) => {
+    const url = eventType
+      ? `${API_BASE}/events/${eventType}`
+      : `${API_BASE}/events`;
+    fetch(url, { method: "DELETE" }).then(() => {
+      fetchStats();
+      window.dispatchEvent(new Event("data-refresh"));
+    });
+  };
+
   const summaryCards = [
-    { label: "Total Events", value: stats.total_events, icon: "event_note", color: "#3b82f6" },
+    { label: "Total Events", value: stats.total_events, icon: "event_note", color: "#3b82f6", deleteType: null },
     { label: "Today", value: stats.today_events, icon: "today", color: "#10b981" },
   ];
 
   const eventCards = [
-    { label: "Intrusions", value: stats.intrusions, icon: "warning", color: "#ef4444" },
-    { label: "Loitering", value: stats.loitering, icon: "schedule", color: "#f59e0b" },
-    { label: "Line Crossing", value: stats.line_crossing, icon: "swap_horiz", color: "#8b5cf6" },
+    { label: "Intrusions", value: stats.intrusions, icon: "warning", color: "#ef4444", deleteType: "intrusion" },
+    { label: "Loitering", value: stats.loitering, icon: "schedule", color: "#f59e0b", deleteType: "loitering" },
+    { label: "Line Crossing", value: stats.line_crossing, icon: "swap_horiz", color: "#8b5cf6", deleteType: "line_crossing" },
   ];
 
   const renderCard = (card) => (
@@ -43,6 +55,15 @@ function StatCards() {
         <span className="stat-value">{card.value}</span>
         <span className="stat-label">{card.label}</span>
       </div>
+      {card.deleteType !== undefined && (
+        <button
+          className="stat-delete-btn"
+          onClick={() => handleDelete(card.deleteType)}
+          title={card.deleteType ? `Clear ${card.label}` : "Clear All Events"}
+        >
+          <span className="material-symbols-outlined">delete</span>
+        </button>
+      )}
     </div>
   );
 

@@ -15,6 +15,8 @@ from aiortc.codecs import h264
 from av import VideoFrame
 
 sys.path.append("../../ai/src")
+from models import DailyCount
+from datetime import date
 from events.intrusion import Zone, IntrusionDetector
 from events.loitering import LoiteringDetector
 from events.line_crossing import LineCrossingDetector
@@ -66,6 +68,12 @@ def _event_writer():
         db = SessionLocal()
         try:
             db.add(Event(**item))
+            today = date.today()
+            daily = db.query(DailyCount).filter(DailyCount.date == today).first()
+            if daily:
+                daily.count += 1
+            else:
+                db.add(DailyCount(date=today, count=1))
             db.commit()
         finally:
             db.close()

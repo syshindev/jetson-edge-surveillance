@@ -29,7 +29,9 @@ function RecentAlerts() {
 
     fetchAlerts();
     const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
+    const onRefresh = () => fetchAlerts();
+    window.addEventListener("data-refresh", onRefresh);
+    return () => { clearInterval(interval); window.removeEventListener("data-refresh", onRefresh); };
   }, []);
 
   return (

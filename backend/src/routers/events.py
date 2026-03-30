@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Event
+from models import Event, DailyCount
+from datetime import datetime, date
 
 router = APIRouter()
 
@@ -15,8 +16,29 @@ def get_events(db: Session = Depends(get_db)):
 def create_event(event_type: str, track_id: int, zone_name: str, center_x: int, center_y: int, db: Session = Depends(get_db)):
     event = Event(event_type=event_type, track_id=track_id, zone_name=zone_name, center_x=center_x, center_y=center_y)
     db.add(event)
+    today = date.today()
+    daily = db.query(DailyCount).filter(DailyCount.date == today).first()
+    if daily:
+        daily.count += 1
+    else:
+        db.add(DailyCount(date=today, count=1))
     db.commit()
     return event
+
+
+@router.delete("/events/today")
+def delete_today_events(db: Session = Depends(get_db)):
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    db.query(Event).filter(Event.timestamp >= today_start).delete()
+    db.commit()
+    return {"message": "Today's events deleted"}
+
+
+@router.delete("/events/{event_type}")
+def delete_events_by_type(event_type: str, db: Session = Depends(get_db)):
+    db.query(Event).filter(Event.event_type == event_type).delete()
+    db.commit()
+    return {"message": f"{event_type} events deleted"}
 
 
 @router.delete("/events")
@@ -24,3 +46,11 @@ def delete_events(db: Session = Depends(get_db)):
     db.query(Event).delete()
     db.commit()
     return {"message": "All events deleted"}
+
+
+@router.delete("/events-all")
+def delete_all(db: Session = Depends(get_db)):
+    db.query(Event).delete()
+    db.query(DailyCount).delete()
+    db.commit()
+    return {"message": "All events and daily counts deleted"}

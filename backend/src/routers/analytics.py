@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from database import get_db
-from models import Event
+from models import Event, DailyCount
 
 router = APIRouter()
 
@@ -28,10 +28,9 @@ def type_count(db: Session = Depends(get_db)):
 
 @router.get("/analytics/summary")
 def summary(db: Session = Depends(get_db)):
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
     total = db.query(func.count(Event.id)).scalar()
-    today = db.query(func.count(Event.id)).filter(Event.timestamp >= today_start).scalar()
+    daily = db.query(DailyCount).filter(DailyCount.date == date.today()).first()
+    today = daily.count if daily else 0
     intrusions = db.query(func.count(Event.id)).filter(Event.event_type == "intrusion").scalar()
     loitering = db.query(func.count(Event.id)).filter(Event.event_type == "loitering").scalar()
     line_crossing = db.query(func.count(Event.id)).filter(Event.event_type == "line_crossing").scalar()
