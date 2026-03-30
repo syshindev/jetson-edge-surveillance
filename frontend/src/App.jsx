@@ -3,6 +3,8 @@ import VideoStream from "./VideoStream";
 import EventLog from "./EventLog";
 import Analytics from "./Analytics";
 import ZoneConfig from "./ZoneConfig";
+import DataManagement from "./DataManagement";
+import StreamOverlay from "./StreamOverlay";
 import StatCards from "./StatCards";
 import RecentAlerts from "./RecentAlerts";
 import "./App.css";
@@ -27,6 +29,7 @@ function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [viewMode, setViewMode] = useState("1x1");
+  const [focusedStream, setFocusedStream] = useState(null);
   const [videoHeight, setVideoHeight] = useState(400);
   const videoCardRef = useRef(null);
 
@@ -49,40 +52,40 @@ function App() {
     return () => observer.disconnect();
   }, [activePage]);
 
+  const streamCell = (id, placeholder = false) => {
+    if (placeholder) return <div className="card video-stream placeholder"><p>No Source</p></div>;
+    const isFocused = focusedStream === id;
+    const clickable = viewMode !== "1x1";
+    return (
+      <div
+        key={id}
+        className={`card video-stream ${clickable ? "clickable" : ""} ${isFocused ? "stream-focused" : ""}`}
+        onClick={clickable ? () => setFocusedStream(isFocused ? null : id) : undefined}
+        style={{ cursor: clickable ? "pointer" : "default", position: "relative" }}
+      >
+        <VideoStream streamId={id} />
+        <StreamOverlay streamId={id} />
+      </div>
+    );
+  };
+
   const renderStreamView = () => {
+    if (focusedStream !== null) {
+      return (
+        <div className="stream-grid grid-1x1">
+          {streamCell(focusedStream)}
+        </div>
+      );
+    }
     switch (viewMode) {
       case "1x1":
-        return (
-          <div className="stream-grid grid-1x1">
-            <div className="card video-stream">
-              <VideoStream streamId={0} />
-            </div>
-          </div>
-        );
+        return <div className="stream-grid grid-1x1">{streamCell(0)}</div>;
       case "1x2":
-        return (
-          <div className="stream-grid grid-1x2">
-            <div className="card video-stream"><VideoStream streamId={0} /></div>
-            <div className="card video-stream"><VideoStream streamId={1} /></div>
-          </div>
-        );
+        return <div className="stream-grid grid-1x2">{streamCell(0)}{streamCell(1)}</div>;
       case "1x3":
-        return (
-          <div className="stream-grid grid-1x3">
-            <div className="card video-stream"><VideoStream streamId={0} /></div>
-            <div className="card video-stream"><VideoStream streamId={1} /></div>
-            <div className="card video-stream"><VideoStream streamId={2} /></div>
-          </div>
-        );
+        return <div className="stream-grid grid-1x3">{streamCell(0)}{streamCell(1)}{streamCell(2)}</div>;
       case "2x2":
-        return (
-          <div className="stream-grid grid-2x2">
-            <div className="card video-stream"><VideoStream streamId={0} /></div>
-            <div className="card video-stream"><VideoStream streamId={1} /></div>
-            <div className="card video-stream"><VideoStream streamId={2} /></div>
-            <div className="card video-stream placeholder"><p>No Source</p></div>
-          </div>
-        );
+        return <div className="stream-grid grid-2x2">{streamCell(0)}{streamCell(1)}{streamCell(2)}{streamCell(3, true)}</div>;
       default:
         return null;
     }
@@ -113,7 +116,7 @@ function App() {
                 <button
                   key={mode.id}
                   className={`view-mode-btn ${viewMode === mode.id ? "active" : ""}`}
-                  onClick={() => setViewMode(mode.id)}
+                  onClick={() => { setViewMode(mode.id); setFocusedStream(null); }}
                 >
                   <span className="material-symbols-outlined">{mode.icon}</span>
                 </button>
@@ -132,9 +135,12 @@ function App() {
         return <Analytics />;
       case "settings":
         return (
-          <div className="card zone-config no-scroll">
-            <ZoneConfig />
-          </div>
+          <>
+            <div className="card zone-config no-scroll">
+              <ZoneConfig />
+            </div>
+            <DataManagement />
+          </>
         );
       default:
         return null;

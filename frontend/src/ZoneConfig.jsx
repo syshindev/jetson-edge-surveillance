@@ -75,12 +75,12 @@ function ZoneConfig() {
     const handleSave = () => {
         const minPoints = zoneType === "line_crossing" ? 2 : 3;
         if (!zoneName.trim()) {
-            setSaveMsg("Enter a zone name.");
+            setSaveMsg("Enter a zone name");
             setTimeout(() => setSaveMsg(""), 3000);
             return;
         }
         if (points.length < minPoints) {
-            setSaveMsg(`Draw at least ${minPoints} points.`);
+            setSaveMsg(`Draw at least ${minPoints} points`);
             setTimeout(() => setSaveMsg(""), 3000);
             return;
         }
@@ -92,8 +92,8 @@ function ZoneConfig() {
         })
         .then((res) => res.json())
         .then(() => fetch(`${API_BASE}/reload-zones/${streamId}`, { method: "POST" }))
-        .then(() => { setSaveMsg("Zone saved!"); setTimeout(() => setSaveMsg(""), 3000); })
-        .catch(() => { setSaveMsg("Failed to save."); setTimeout(() => setSaveMsg(""), 3000); });
+        .then(() => { setSaveMsg("Zone saved"); setTimeout(() => setSaveMsg(""), 3000); })
+        .catch(() => { setSaveMsg("Failed to save"); setTimeout(() => setSaveMsg(""), 3000); });
     };
 
     return (

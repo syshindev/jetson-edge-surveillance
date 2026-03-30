@@ -6,12 +6,17 @@ import {
     LineChart, Line,
 } from "recharts";
 
-const COLORS = ["#e94560", "#f59e0b", "#3b82f6"];
+const TYPE_COLORS = {
+    intrusion: "#e94560",
+    loitering: "#f59e0b",
+    line_crossing: "#3b82f6",
+};
 
 function Analytics() {
     const [typeCounts, setTypeCounts] = useState([]);
     const [hourly, setHourly] = useState([]);
     const [total, setTotal] = useState(0);
+    const [byStream, setByStream] = useState([]);
 
     useEffect(() => {
         const fetchData = () => {
@@ -32,6 +37,11 @@ function Analytics() {
             fetch(`${API_BASE}/analytics/hourly`)
                 .then((res) => res.json())
                 .then((data) => { if (Array.isArray(data)) setHourly(data); })
+                .catch(() => {});
+
+            fetch(`${API_BASE}/analytics/by-stream`)
+                .then((res) => res.json())
+                .then((data) => { if (Array.isArray(data)) setByStream(data.map((d) => ({ ...d, name: `Camera ${d.stream_id + 1}` }))); })
                 .catch(() => {});
         };
 
@@ -54,8 +64,8 @@ function Analytics() {
                             <YAxis allowDecimals={false} />
                             <Tooltip />
                             <Bar dataKey="count">
-                                {typeCounts.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                {typeCounts.map((d, i) => (
+                                    <Cell key={i} fill={TYPE_COLORS[d.type] || "#6b7280"} />
                                 ))}
                             </Bar>
                         </BarChart>
@@ -67,8 +77,8 @@ function Analytics() {
                     <ResponsiveContainer width="100%" height={250}>
                         <PieChart>
                             <Pie data={typeCounts} dataKey="count" nameKey="label" cx="50%" cy="50%" outerRadius={80} label>
-                                {typeCounts.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                {typeCounts.map((d, i) => (
+                                    <Cell key={i} fill={TYPE_COLORS[d.type] || "#6b7280"} />
                                 ))}
                             </Pie>
                             <Tooltip />
@@ -88,6 +98,32 @@ function Analytics() {
                         <Line type="monotone" dataKey="count" stroke="#e94560" strokeWidth={2} dot={false} />
                     </LineChart>
                 </ResponsiveContainer>
+            </div>
+
+            <div className="card analytics-card" style={{ marginTop: "1rem" }}>
+                <h3 className="chart-title">Events by Camera</h3>
+                <table className="camera-stats-table">
+                    <thead>
+                        <tr>
+                            <th>Camera</th>
+                            <th style={{ color: "#e94560" }}>Intrusion</th>
+                            <th style={{ color: "#3b82f6" }}>Line Crossing</th>
+                            <th style={{ color: "#f59e0b" }}>Loitering</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {byStream.map((row) => (
+                            <tr key={row.stream_id}>
+                                <td>{row.name}</td>
+                                <td>{row.intrusion}</td>
+                                <td>{row.line_crossing}</td>
+                                <td>{row.loitering}</td>
+                                <td>{row.intrusion + row.loitering + row.line_crossing}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
