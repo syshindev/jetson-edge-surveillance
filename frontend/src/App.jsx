@@ -30,6 +30,8 @@ function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [viewMode, setViewMode] = useState("1x1");
   const [focusedStream, setFocusedStream] = useState(null);
+  const [soloStream, setSoloStream] = useState(0);
+  const [dashStream, setDashStream] = useState(0);
   const [videoHeight, setVideoHeight] = useState(400);
   const videoCardRef = useRef(null);
 
@@ -79,7 +81,7 @@ function App() {
     }
     switch (viewMode) {
       case "1x1":
-        return <div className="stream-grid grid-1x1">{streamCell(0)}</div>;
+        return <div className="stream-grid grid-1x1">{streamCell(soloStream)}</div>;
       case "1x2":
         return <div className="stream-grid grid-1x2">{streamCell(0)}{streamCell(1)}</div>;
       case "1x3":
@@ -99,8 +101,21 @@ function App() {
             <StatCards />
             <div className="grid">
               <div className="card video-stream" ref={videoCardRef}>
-                <h2>Live Stream</h2>
-                <VideoStream streamId={0} />
+                <div className="dash-stream-header">
+                  <h2>Live Stream</h2>
+                  <div className="cam-selector">
+                    {[0, 1, 2].map((id) => (
+                      <button
+                        key={id}
+                        className={`cam-btn ${dashStream === id ? "active" : ""}`}
+                        onClick={() => setDashStream(id)}
+                      >
+                        Cam {id + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <VideoStream streamId={dashStream} />
               </div>
               <div className="card alerts-card" style={{ maxHeight: videoHeight }}>
                 <RecentAlerts />
@@ -121,6 +136,19 @@ function App() {
                   <span className="material-symbols-outlined">{mode.icon}</span>
                 </button>
               ))}
+              {viewMode === "1x1" && (
+                <div className="cam-selector">
+                  {[0, 1, 2].map((id) => (
+                    <button
+                      key={id}
+                      className={`cam-btn ${soloStream === id ? "active" : ""}`}
+                      onClick={() => setSoloStream(id)}
+                    >
+                      Cam {id + 1}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             {renderStreamView()}
           </>

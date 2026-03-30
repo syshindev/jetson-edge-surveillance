@@ -215,7 +215,25 @@ html, body, #root {
   gap: 14px;
   padding: 18px 16px;
   border-radius: 8px;
+  position: relative;
 }
+
+.stat-delete-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: opacity 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+}
+.stat-delete-btn .material-symbols-outlined { font-size: 1.1rem; }
+.stat-card:hover .stat-delete-btn { opacity: 0.4; }
+.stat-delete-btn:hover { opacity: 1 !important; background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 
 .stat-icon {
   font-size: 2rem !important;
@@ -333,6 +351,41 @@ html, body, #root {
 
 .light .view-mode-btn {
   border-color: #ddd;
+}
+
+.cam-selector {
+  display: flex;
+  gap: 4px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+.cam-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #0f3460;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+.cam-btn:hover { background: rgba(233, 69, 96, 0.1); color: #e94560; }
+.cam-btn.active { background: #e94560; color: #fff; border-color: #e94560; }
+.light .cam-selector { border-color: #ddd; }
+.light .cam-btn { border-color: #ddd; }
+
+.dash-stream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.dash-stream-header .cam-selector {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
 }
 
 /* Stream Grid Layouts */
