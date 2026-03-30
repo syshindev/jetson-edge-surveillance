@@ -32,6 +32,8 @@ function App() {
   const [focusedStream, setFocusedStream] = useState(null);
   const [soloStream, setSoloStream] = useState(0);
   const [dashStream, setDashStream] = useState(0);
+  const [streamOrder, setStreamOrder] = useState([0, 1, 2, 3]);
+  const [dragIdx, setDragIdx] = useState(null);
   const [videoHeight, setVideoHeight] = useState(400);
   const videoCardRef = useRef(null);
 
@@ -54,16 +56,28 @@ function App() {
     return () => observer.disconnect();
   }, [activePage]);
 
-  const streamCell = (id, placeholder = false) => {
+  const streamCell = (id, idx, placeholder = false) => {
     if (placeholder) return <div className="card video-stream placeholder"><p>No Source</p></div>;
     const isFocused = focusedStream === id;
     const clickable = viewMode !== "1x1";
+    const draggable = viewMode !== "1x1" && focusedStream === null;
     return (
       <div
         key={id}
-        className={`card video-stream ${clickable ? "clickable" : ""} ${isFocused ? "stream-focused" : ""}`}
+        className={`card video-stream ${clickable ? "clickable" : ""} ${isFocused ? "stream-focused" : ""} ${dragIdx === idx ? "dragging" : ""}`}
+        draggable={draggable}
+        onDragStart={(e) => { if (!draggable) { e.preventDefault(); return; } setDragIdx(idx); }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => {
+          if (dragIdx === null || dragIdx === idx) return;
+          const newOrder = [...streamOrder];
+          [newOrder[dragIdx], newOrder[idx]] = [newOrder[idx], newOrder[dragIdx]];
+          setStreamOrder(newOrder);
+          setDragIdx(null);
+        }}
+        onDragEnd={() => setDragIdx(null)}
         onClick={clickable ? () => setFocusedStream(isFocused ? null : id) : undefined}
-        style={{ cursor: clickable ? "pointer" : "default", position: "relative" }}
+        style={{ cursor: draggable ? "grab" : clickable ? "pointer" : "default", position: "relative" }}
       >
         <VideoStream streamId={id} />
         <StreamOverlay streamId={id} />
@@ -79,15 +93,19 @@ function App() {
         </div>
       );
     }
+    const count = viewModes.find((m) => m.id === viewMode)?.count || 1;
+    const cells = streamOrder.slice(0, count).map((id, idx) =>
+      id >= 3 ? streamCell(id, idx, true) : streamCell(id, idx)
+    );
     switch (viewMode) {
       case "1x1":
-        return <div className="stream-grid grid-1x1">{streamCell(soloStream)}</div>;
+        return <div className="stream-grid grid-1x1">{streamCell(soloStream, 0)}</div>;
       case "1x2":
-        return <div className="stream-grid grid-1x2">{streamCell(0)}{streamCell(1)}</div>;
+        return <div className="stream-grid grid-1x2">{cells}</div>;
       case "1x3":
-        return <div className="stream-grid grid-1x3">{streamCell(0)}{streamCell(1)}{streamCell(2)}</div>;
+        return <div className="stream-grid grid-1x3">{cells}</div>;
       case "2x2":
-        return <div className="stream-grid grid-2x2">{streamCell(0)}{streamCell(1)}{streamCell(2)}{streamCell(3, true)}</div>;
+        return <div className="stream-grid grid-2x2">{cells}</div>;
       default:
         return null;
     }

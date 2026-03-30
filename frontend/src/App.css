@@ -388,6 +388,15 @@ html, body, #root {
   border-left: none;
 }
 
+/* Drag and Drop */
+.video-stream.dragging {
+  opacity: 0.4;
+  outline: 2px dashed #e94560 !important;
+}
+.video-stream[draggable="true"]:hover {
+  outline: 1px solid rgba(233, 69, 96, 0.3);
+}
+
 /* Stream Grid Layouts */
 .stream-grid {
   display: grid;
