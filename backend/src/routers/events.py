@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Event, DailyCount
+from auth import get_current_user
 from datetime import date
 
 router = APIRouter()
@@ -27,21 +28,21 @@ def create_event(event_type: str, track_id: int, zone_name: str, center_x: int, 
 
 
 @router.delete("/events/{event_type}")
-def delete_events_by_type(event_type: str, db: Session = Depends(get_db)):
+def delete_events_by_type(event_type: str, db: Session = Depends(get_db), user=Depends(get_current_user)):
     db.query(Event).filter(Event.event_type == event_type).delete()
     db.commit()
     return {"message": f"{event_type} events deleted"}
 
 
 @router.delete("/events")
-def delete_events(db: Session = Depends(get_db)):
+def delete_events(db: Session = Depends(get_db), user=Depends(get_current_user)):
     db.query(Event).delete()
     db.commit()
     return {"message": "All events deleted"}
 
 
 @router.delete("/events-all")
-def delete_all(db: Session = Depends(get_db)):
+def delete_all(db: Session = Depends(get_db), user=Depends(get_current_user)):
     db.query(Event).delete()
     db.query(DailyCount).delete()
     db.commit()

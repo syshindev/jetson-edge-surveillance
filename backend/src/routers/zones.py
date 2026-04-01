@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models import ZoneModel
+from auth import get_current_user
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ def get_zones_by_stream(stream_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/zones")
-def create_zone(stream_id: int, name: str, zone_type: str, polygon: str, db: Session = Depends(get_db)):
+def create_zone(stream_id: int, name: str, zone_type: str, polygon: str, db: Session = Depends(get_db), user=Depends(get_current_user)):
     zone = ZoneModel(stream_id=stream_id, name=name, zone_type=zone_type, polygon=polygon)
     db.add(zone)
     db.commit()
@@ -25,7 +26,7 @@ def create_zone(stream_id: int, name: str, zone_type: str, polygon: str, db: Ses
 
 
 @router.delete("/zones/{stream_id}")
-def delete_zones(stream_id: int, db: Session = Depends(get_db)):
+def delete_zones(stream_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
     db.query(ZoneModel).filter(ZoneModel.stream_id == stream_id).delete()
     db.commit()
     return {"message": "Zones deleted"}

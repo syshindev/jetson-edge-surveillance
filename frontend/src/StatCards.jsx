@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_BASE, WS_URL } from "./constants";
+import { apiFetch } from "./api";
 
 function StatCards() {
   const [stats, setStats] = useState({
@@ -36,10 +37,10 @@ function StatCards() {
   }, []);
 
   const handleDelete = (eventType) => {
-    const url = eventType
-      ? `${API_BASE}/events/${eventType}`
-      : `${API_BASE}/events`;
-    fetch(url, { method: "DELETE" }).then(() => {
+    const path = eventType
+      ? `/events/${eventType}`
+      : `/events`;
+    apiFetch(path, { method: "DELETE" }).then(() => {
       fetchStats();
       window.dispatchEvent(new Event("data-refresh"));
     });

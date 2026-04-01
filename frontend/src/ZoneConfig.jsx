@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { API_BASE } from "./constants";
+import { apiFetch } from "./api";
 
 function ZoneConfig() {
     const canvasRef = useRef(null);
@@ -84,14 +85,14 @@ function ZoneConfig() {
             setTimeout(() => setSaveMsg(""), 3000);
             return;
         }
-        fetch(`${API_BASE}/zones/${streamId}`, { method: "DELETE" })
+        apiFetch(`/zones/${streamId}`, { method: "DELETE" })
         .then(() => {
-            return fetch(`${API_BASE}/zones?stream_id=${streamId}&name=${zoneName || zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
+            return apiFetch(`/zones?stream_id=${streamId}&name=${zoneName || zoneType}&zone_type=${zoneType}&polygon=${JSON.stringify(points)}`, {
                 method: "POST",
             });
         })
         .then((res) => res.json())
-        .then(() => fetch(`${API_BASE}/reload-zones/${streamId}`, { method: "POST" }))
+        .then(() => apiFetch(`/reload-zones/${streamId}`, { method: "POST" }))
         .then(() => { setSaveMsg("Zone saved"); setTimeout(() => setSaveMsg(""), 3000); })
         .catch(() => { setSaveMsg("Failed to save"); setTimeout(() => setSaveMsg(""), 3000); });
     };

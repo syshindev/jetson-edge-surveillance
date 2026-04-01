@@ -9,7 +9,7 @@ import os
 
 Base.metadata.create_all(bind=engine)
 
-from routers import events, stream, analytics, zones
+from routers import events, stream, analytics, zones, auth
 
 signal.signal(signal.SIGINT, lambda *_: os._exit(0))
 
@@ -26,6 +26,7 @@ app.include_router(events.router)
 app.include_router(stream.router)
 app.include_router(analytics.router)
 app.include_router(zones.router)
+app.include_router(auth.router)
 
 
 @app.websocket("/ws")

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { API_BASE } from "./constants";
+import { apiFetch } from "./api";
 
 function DataManagement() {
     const [msg, setMsg] = useState("");
     const [confirming, setConfirming] = useState(false);
 
     const handleReset = () => {
-        fetch(`${API_BASE}/events-all`, { method: "DELETE" })
+        apiFetch("/events-all", { method: "DELETE" })
             .then((res) => res.json())
             .then(() => { setMsg("All events deleted"); setTimeout(() => setMsg(""), 3000); })
             .catch(() => { setMsg("Failed to delete events"); setTimeout(() => setMsg(""), 3000); })

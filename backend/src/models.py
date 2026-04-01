@@ -32,3 +32,11 @@ class ZoneModel(Base):
     name = Column(String)
     zone_type = Column(String)
     polygon = Column(String)
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)

@@ -7,6 +7,7 @@ import DataManagement from "./DataManagement";
 import StreamOverlay from "./StreamOverlay";
 import StatCards from "./StatCards";
 import RecentAlerts from "./RecentAlerts";
+import Login from "./Login";
 import "./App.css";
 
 const pages = [
@@ -25,6 +26,7 @@ const viewModes = [
 ];
 
 function App() {
+  const [authed, setAuthed] = useState(!!localStorage.getItem("token"));
   const [darkMode, setDarkMode] = useState(true);
   const [activePage, setActivePage] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -193,6 +195,8 @@ function App() {
     }
   };
 
+  if (!authed) return <Login onLogin={() => setAuthed(true)} />;
+
   return (
     <div className={`app-layout ${darkMode ? "dark" : "light"}`}>
       <aside className="sidebar">
@@ -216,6 +220,10 @@ function App() {
           <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
             <span className="material-symbols-outlined">{darkMode ? "light_mode" : "dark_mode"}</span>
             {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+          <button className="theme-toggle" onClick={() => { localStorage.removeItem("token"); setAuthed(false); }}>
+            <span className="material-symbols-outlined">logout</span>
+            Logout
           </button>
         </div>
       </aside>

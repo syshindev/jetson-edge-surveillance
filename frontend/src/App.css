@@ -9,6 +9,74 @@ html, body, #root {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* Login Page */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1a1a2e;
+}
+.login-card {
+  background: #16213e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 48px 40px;
+  width: 360px;
+  text-align: center;
+}
+.login-brand {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  margin-bottom: 32px;
+}
+.login-card input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.login-card input::placeholder { color: rgba(255,255,255,0.3); }
+.login-card input:focus { outline: none; border-color: #e94560; }
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e94560;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.login-btn:hover { background: #c73652; }
+.login-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+.login-toggle {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  margin-top: 16px;
+  cursor: pointer;
+}
+.login-toggle:hover { color: #e94560; }
+
 /* App Layout */
 .app-layout {
   display: flex;
