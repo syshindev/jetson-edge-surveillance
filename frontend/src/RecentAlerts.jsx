@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE, LABEL_MAP } from "./constants";
+import { API_BASE, WS_URL, LABEL_MAP } from "./constants";
 
 const severityMap = {
   intrusion: { color: "#ef4444", icon: "error" },
@@ -28,10 +28,20 @@ function RecentAlerts() {
     };
 
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000);
     const onRefresh = () => fetchAlerts();
     window.addEventListener("data-refresh", onRefresh);
-    return () => { clearInterval(interval); window.removeEventListener("data-refresh", onRefresh); };
+
+    let ws;
+    let stopped = false;
+    const connectWs = () => {
+      if (stopped) return;
+      ws = new WebSocket(WS_URL);
+      ws.onmessage = () => fetchAlerts();
+      ws.onclose = (e) => { if (!stopped && e.code !== 1000) setTimeout(connectWs, 3000); };
+    };
+    connectWs();
+
+    return () => { stopped = true; ws?.close(); window.removeEventListener("data-refresh", onRefresh); };
   }, []);
 
   return (

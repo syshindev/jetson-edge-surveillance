@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "./constants";
+import { API_BASE, WS_URL } from "./constants";
 
 function StatCards() {
   const [stats, setStats] = useState({
@@ -19,10 +19,20 @@ function StatCards() {
 
   useEffect(() => {
     fetchStats();
-    const interval = setInterval(fetchStats, 5000);
     const onRefresh = () => fetchStats();
     window.addEventListener("data-refresh", onRefresh);
-    return () => { clearInterval(interval); window.removeEventListener("data-refresh", onRefresh); };
+
+    let ws;
+    let stopped = false;
+    const connectWs = () => {
+      if (stopped) return;
+      ws = new WebSocket(WS_URL);
+      ws.onmessage = () => fetchStats();
+      ws.onclose = (e) => { if (!stopped && e.code !== 1000) setTimeout(connectWs, 3000); };
+    };
+    connectWs();
+
+    return () => { stopped = true; ws?.close(); window.removeEventListener("data-refresh", onRefresh); };
   }, []);
 
   const handleDelete = (eventType) => {
