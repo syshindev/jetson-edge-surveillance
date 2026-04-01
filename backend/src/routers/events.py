@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Event, DailyCount
-from datetime import datetime, date
+from datetime import date
 
 router = APIRouter()
 
@@ -24,14 +24,6 @@ def create_event(event_type: str, track_id: int, zone_name: str, center_x: int, 
         db.add(DailyCount(date=today, count=1))
     db.commit()
     return event
-
-
-@router.delete("/events/today")
-def delete_today_events(db: Session = Depends(get_db)):
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    db.query(Event).filter(Event.timestamp >= today_start).delete()
-    db.commit()
-    return {"message": "Today's events deleted"}
 
 
 @router.delete("/events/{event_type}")

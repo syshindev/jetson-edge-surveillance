@@ -27,6 +27,7 @@ from types import SimpleNamespace
 from ultralytics.trackers.bot_sort import BOTSORT
 from ultralytics.engine.results import Boxes
 
+from ws_manager import notify_clients
 
 h264.DEFAULT_BITRATE = 8000000
 
@@ -47,9 +48,9 @@ def create_tracker():
         tracker_type="botsort",
         track_high_thresh=0.5,
         track_low_thresh=0.1,
-        new_track_thresh=0.6,
-        track_buffer=30,
-        match_thresh=0.8,
+        new_track_thresh=0.7,
+        track_buffer=90,
+        match_thresh=0.7,
         fuse_score=True,
         gmc_method="none",
         proximity_thresh=0.5,
@@ -75,6 +76,7 @@ def _event_writer():
             else:
                 db.add(DailyCount(date=today, count=1))
             db.commit()
+            notify_clients({"type": "event", "data": item})
         finally:
             db.close()
 threading.Thread(target=_event_writer, daemon=True).start()
@@ -179,6 +181,11 @@ class StreamProcessor:
             for d in self.detectors:
                 events = d["detector"].check(results)
                 has_event = len(events) > 0
+                if d["type"] == "loitering":
+                    active_ids = {e["track_id"] for e in events}
+                    for tid in list(self.loitering_throttle):
+                        if tid not in active_ids:
+                            del self.loitering_throttle[tid]
 
                 if d["type"] in ("intrusion", "loitering"):
                     pts_poly = np.array(d["polygon"]).reshape((-1, 1, 2))
@@ -194,9 +201,9 @@ class StreamProcessor:
                     track_id = event["track_id"]
                     now = time.time()
                     if d["type"] == "loitering":
-                        # 4s throttle: keeps badge alive while person stays in zone
-                        if now - self.loitering_throttle.get(track_id, 0) >= 4.0:
-                            self.loitering_throttle[track_id] = now
+                        # Once per stay: fires once when loitering detected, resets when track leaves zone
+                        if track_id not in self.loitering_throttle:
+                            self.loitering_throttle[track_id] = True
                             save_event(
                                 event_type=d["type"],
                                 track_id=track_id,
