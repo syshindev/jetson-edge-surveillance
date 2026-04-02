@@ -9,10 +9,10 @@ router = APIRouter()
 
 
 @router.post("/auth/register")
-def register(username: str, password: str, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.username == username).first():
+def register(form: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+    if db.query(User).filter(User.username == form.username).first():
         raise HTTPException(status_code=400, detail="Username already exists")
-    user = User(username=username, hashed_password=hash_password(password))
+    user = User(username=form.username, hashed_password=hash_password(form.password))
     db.add(user)
     db.commit()
     return {"message": "User created"}

@@ -8,6 +8,7 @@ import StreamOverlay from "./StreamOverlay";
 import StatCards from "./StatCards";
 import RecentAlerts from "./RecentAlerts";
 import Login from "./Login";
+import { WS_URL } from "./constants";
 import "./App.css";
 
 const pages = [
@@ -37,11 +38,26 @@ function App() {
   const [streamOrder, setStreamOrder] = useState([0, 1, 2, 3]);
   const [dragIdx, setDragIdx] = useState(null);
   const [videoHeight, setVideoHeight] = useState(400);
+  const [wsConnected, setWsConnected] = useState(true);
   const videoCardRef = useRef(null);
 
   useEffect(() => {
     document.body.style.background = darkMode ? "#1a1a2e" : "#f0f2f5";
   }, [darkMode]);
+
+  useEffect(() => {
+    if (!authed) return;
+    let stopped = false;
+    let ws;
+    const connect = () => {
+      if (stopped) return;
+      ws = new WebSocket(WS_URL);
+      ws.onopen = () => setWsConnected(true);
+      ws.onclose = (e) => { if (!stopped && e.code !== 1000) { setWsConnected(false); setTimeout(connect, 3000); } };
+    };
+    connect();
+    return () => { stopped = true; ws?.close(); };
+  }, [authed]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -195,7 +211,7 @@ function App() {
     }
   };
 
-  if (!authed) return <Login onLogin={() => setAuthed(true)} />;
+  if (!authed) return <Login darkMode={darkMode} onToggleTheme={() => setDarkMode(!darkMode)} onLogin={() => setAuthed(true)} />;
 
   return (
     <div className={`app-layout ${darkMode ? "dark" : "light"}`}>
@@ -228,6 +244,12 @@ function App() {
         </div>
       </aside>
       <main className="content">
+        {!wsConnected && (
+          <div className="connection-banner">
+            <span className="material-symbols-outlined">cloud_off</span>
+            Connection lost — reconnecting...
+          </div>
+        )}
         <div className="content-header">
           <h2 className="page-title">{pages.find((p) => p.id === activePage)?.label}</h2>
           <span className="live-clock">

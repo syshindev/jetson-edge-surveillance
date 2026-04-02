@@ -1,13 +1,16 @@
+import os
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from database import get_db
 from models import User
 
-SECRET_KEY = "dober-surveillance-secret-key-2026"   # TODO: use env variable in production
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "default-dev-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 

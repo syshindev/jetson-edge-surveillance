@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { API_BASE } from "./constants";
 
-function Login({ onLogin }) {
+function Login({ darkMode, onToggleTheme, onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [mode, setMode] = useState("login");
 
+  const validate = () => {
+    if (!username.trim()) { setError("Username is required"); return false; }
+    if (!password) { setError("Password is required"); return false; }
+    return true;
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
+    if (!validate()) return;
     const body = new URLSearchParams({ username, password });
     fetch(`${API_BASE}/auth/login`, {
       method: "POST",
@@ -23,13 +30,17 @@ function Login({ onLogin }) {
         localStorage.setItem("token", data.access_token);
         onLogin();
       })
-      .catch(() => setError("Invalid username or password"));
+      .catch((err) => setError(err.message === "Failed to fetch" ? "Server is not responding" : "Invalid username or password"));
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
-    fetch(`${API_BASE}/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`, {
+    if (!validate()) return;
+    const body = new URLSearchParams({ username, password });
+    fetch(`${API_BASE}/auth/register`, {
       method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
     })
       .then((res) => {
         if (!res.ok) throw new Error("Registration failed");
@@ -41,12 +52,15 @@ function Login({ onLogin }) {
         setUsername("");
         setPassword("");
       })
-      .catch(() => setError("Username already exists"));
+      .catch((err) => setError(err.message === "Failed to fetch" ? "Server is not responding" : "Username already exists"));
   };
 
   return (
-    <div className="login-page">
+    <div className={`login-page ${darkMode ? "dark" : "light"}`}>
       <div className="login-card">
+        <button className="login-theme-btn" onClick={onToggleTheme}>
+          <span className="material-symbols-outlined">{darkMode ? "light_mode" : "dark_mode"}</span>
+        </button>
         <h1 className="login-brand">DOBER</h1>
         <p className="login-subtitle">AI Surveillance System</p>
         <form onSubmit={mode === "login" ? handleLogin : handleRegister}>
@@ -55,14 +69,12 @@ function Login({ onLogin }) {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
           {error && <p className="login-error">{error}</p>}
           <button type="submit" className="login-btn">
