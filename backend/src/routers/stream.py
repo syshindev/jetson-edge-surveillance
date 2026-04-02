@@ -15,14 +15,13 @@ from aiortc.codecs import h264
 from av import VideoFrame
 
 sys.path.append("../../ai/src")
-from models import DailyCount
 from datetime import date
 from events.intrusion import Zone, IntrusionDetector
 from events.loitering import LoiteringDetector
 from events.line_crossing import LineCrossingDetector
 
 from database import SessionLocal
-from models import Event, ZoneModel
+from models import Event, ZoneModel, DailyCount
 from types import SimpleNamespace
 from ultralytics.trackers.bot_sort import BOTSORT
 from ultralytics.engine.results import Boxes

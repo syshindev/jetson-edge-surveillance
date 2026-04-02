@@ -12,6 +12,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/src:/app
+    env_file:
+      - ./backend/src/.env
 
   frontend:
     build: ./frontend
