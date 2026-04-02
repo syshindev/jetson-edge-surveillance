@@ -553,6 +553,7 @@ html, body, #root {
   display: flex;
   gap: 16px;
   margin-bottom: 16px;
+  align-items: stretch;
 }
 
 .grid .video-stream { flex: 2; max-height: none; }
@@ -590,7 +591,7 @@ html, body, #root {
 .light .event-tab { border-color: #ddd; }
 
 /* Table */
-table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+table { width: 100%; border-collapse: collapse; }
 th, td { padding: 8px 12px; text-align: left; }
 th { font-size: 0.85rem; text-transform: uppercase; }
 td { font-size: 0.9rem; }
@@ -752,6 +753,7 @@ td { font-size: 0.9rem; }
   .grid-1x2 { grid-template-columns: 1fr; }
   .grid-1x3 { grid-template-columns: 1fr; }
   .grid-2x2 { grid-template-columns: 1fr; }
+  table { display: block; overflow-x: auto; }
   .toast, .confirm-modal {
     left: 50%;
   }

@@ -2,8 +2,7 @@
 
 Real-time edge AI video surveillance system powered by **YOLO11n** and **BoTSORT**, designed for **NVIDIA Jetson Orin Nano Super**. Features object detection, multi-object tracking, event detection, and a full-featured web dashboard.
 
-<!-- Demo GIF here -->
-<!-- ![Demo](assets/demo.gif) -->
+![Dashboard Demo](assets/demo-dashboard.gif)
 
 ## Features
 
@@ -172,13 +171,13 @@ docker compose up
 | POST | `/stream/{id}/offer` | - | WebRTC signaling |
 | WS | `/ws` | - | Real-time event push |
 
-## Screenshots
+## Demo
 
-<!-- Add screenshots here -->
-<!-- ![Dashboard](assets/dashboard.png) -->
-<!-- ![Login](assets/login.png) -->
-<!-- ![Analytics](assets/analytics.png) -->
-<!-- ![Zone Editor](assets/zone-editor.png) -->
+### Multi-Camera & Focus Mode
+![Stream Demo](assets/demo-stream.gif)
+
+### Zone Configuration
+![Zone Config Demo](assets/demo-zone.gif)
 
 ## Roadmap
 
