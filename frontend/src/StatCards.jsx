@@ -1,15 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { API_BASE, WS_URL } from "./constants";
 import { apiFetch } from "./api";
 
+function AnimatedNumber({ value }) {
+  const [display, setDisplay] = useState(value);
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    if (value !== prevRef.current) {
+      const start = prevRef.current;
+      const diff = value - start;
+      const duration = 400;
+      const startTime = Date.now();
+      const tick = () => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= duration) { setDisplay(value); }
+        else { setDisplay(Math.round(start + diff * (elapsed / duration))); requestAnimationFrame(tick); }
+      };
+      requestAnimationFrame(tick);
+      prevRef.current = value;
+    }
+  }, [value]);
+
+  return <span className="stat-value">{display}</span>;
+}
+
 function StatCards() {
-  const [stats, setStats] = useState({
-    total_events: 0,
-    today_events: 0,
-    intrusions: 0,
-    loitering: 0,
-    line_crossing: 0,
-  });
+  const [stats, setStats] = useState(null);
 
   const fetchStats = () => {
     fetch(`${API_BASE}/analytics/summary`)
@@ -46,15 +63,28 @@ function StatCards() {
     });
   };
 
+  if (!stats) {
+    return (
+      <div className="stat-cards-wrapper">
+        <div className="stat-cards stat-row-2">
+          {[1, 2].map((i) => <div className="stat-card skeleton" key={i}><div className="skeleton-line wide" /><div className="skeleton-line narrow" /></div>)}
+        </div>
+        <div className="stat-cards stat-row-3">
+          {[1, 2, 3].map((i) => <div className="stat-card skeleton" key={i}><div className="skeleton-line wide" /><div className="skeleton-line narrow" /></div>)}
+        </div>
+      </div>
+    );
+  }
+
   const summaryCards = [
     { label: "Total Events", value: stats.total_events, icon: "event_note", color: "#3b82f6", deleteType: null },
     { label: "Today", value: stats.today_events, icon: "today", color: "#10b981" },
   ];
 
   const eventCards = [
-    { label: "Intrusions", value: stats.intrusions, icon: "warning", color: "#ef4444", deleteType: "intrusion" },
+    { label: "Intrusions", value: stats.intrusions, icon: "warning", color: "#e94560", deleteType: "intrusion" },
     { label: "Loitering", value: stats.loitering, icon: "schedule", color: "#f59e0b", deleteType: "loitering" },
-    { label: "Line Crossing", value: stats.line_crossing, icon: "swap_horiz", color: "#8b5cf6", deleteType: "line_crossing" },
+    { label: "Line Crossing", value: stats.line_crossing, icon: "swap_horiz", color: "#3b82f6", deleteType: "line_crossing" },
   ];
 
   const renderCard = (card) => (
@@ -63,7 +93,7 @@ function StatCards() {
         {card.icon}
       </span>
       <div className="stat-info">
-        <span className="stat-value">{card.value}</span>
+        <AnimatedNumber value={card.value} />
         <span className="stat-label">{card.label}</span>
       </div>
       {card.deleteType !== undefined && (

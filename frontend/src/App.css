@@ -696,6 +696,84 @@ td { font-size: 0.9rem; }
 .confirm-modal .confirm-actions { display: flex; gap: 0.75rem; justify-content: center; }
 .light .zone-controls select, .light .zone-controls input { background: #f9f9f9; color: #333; border: 1px solid #ddd; }
 
+/* Skeleton Loading */
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.15);
+  animation: shimmer 1.2s infinite;
+  margin-bottom: 8px;
+}
+.skeleton-line.wide { width: 60%; }
+.skeleton-line.narrow { width: 35%; }
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  animation: shimmer 1.2s infinite;
+  flex-shrink: 0;
+}
+.light .skeleton-line, .light .skeleton-circle { background: rgba(0,0,0,0.12); }
+
+@keyframes shimmer {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* Video Spinner */
+.video-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: #000;
+  border-radius: 4px;
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Event Toast */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 1000;
+}
+.event-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #16213e;
+  color: #fff;
+  border: 1px solid;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: toastSlide 0.3s ease;
+}
+.event-toast .material-symbols-outlined { font-size: 1.1rem; }
+.light .event-toast { background: #fff; color: #333; }
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* Responsive - Tablet (768px) */
 @media (max-width: 768px) {
   .sidebar {

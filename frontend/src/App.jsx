@@ -8,7 +8,7 @@ import StreamOverlay from "./StreamOverlay";
 import StatCards from "./StatCards";
 import RecentAlerts from "./RecentAlerts";
 import Login from "./Login";
-import { WS_URL } from "./constants";
+import { WS_URL, LABEL_MAP } from "./constants";
 import "./App.css";
 
 const pages = [
@@ -39,6 +39,7 @@ function App() {
   const [dragIdx, setDragIdx] = useState(null);
   const [videoHeight, setVideoHeight] = useState(400);
   const [wsConnected, setWsConnected] = useState(true);
+  const [toasts, setToasts] = useState([]);
   const videoCardRef = useRef(null);
 
   useEffect(() => {
@@ -53,6 +54,20 @@ function App() {
       if (stopped) return;
       ws = new WebSocket(WS_URL);
       ws.onopen = () => setWsConnected(true);
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === "event") {
+            const d = msg.data;
+            const id = Date.now();
+            const label = LABEL_MAP[d.event_type] || d.event_type;
+            const iconMap = { intrusion: "warning", loitering: "schedule", line_crossing: "swap_horiz" };
+            const colorMap = { intrusion: "#e94560", loitering: "#f59e0b", line_crossing: "#3b82f6" };
+            setToasts((prev) => [...prev, { id, text: `${label} — ${d.zone_name || "Unknown"}`, icon: iconMap[d.event_type] || "notifications", color: colorMap[d.event_type] || "#e94560", streamId: d.stream_id }]);
+            setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+          }
+        } catch {}
+      };
       ws.onclose = (e) => { if (!stopped && e.code !== 1000) { setWsConnected(false); setTimeout(connect, 3000); } };
     };
     connect();
@@ -259,6 +274,15 @@ function App() {
         </div>
         {renderContent()}
       </main>
+      <div className="toast-container">
+        {toasts.map((t) => (
+          <div key={t.id} className="event-toast" style={{ borderColor: t.color, boxShadow: `0 4px 20px ${t.color}40`, cursor: "pointer" }}
+            onClick={() => { setActivePage("stream"); setViewMode("1x1"); setSoloStream(t.streamId ?? 0); setToasts((prev) => prev.filter((x) => x.id !== t.id)); }}>
+            <span className="material-symbols-outlined" style={{ color: t.color }}>{t.icon}</span>
+            {t.text}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

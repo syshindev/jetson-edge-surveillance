@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { API_BASE, WS_URL, LABEL_MAP } from "./constants";
 
 const severityMap = {
-  intrusion: { color: "#ef4444", icon: "error" },
+  intrusion: { color: "#e94560", icon: "error" },
   loitering: { color: "#f59e0b", icon: "schedule" },
   line_crossing: { color: "#3b82f6", icon: "swap_horiz" },
 };
@@ -17,7 +17,7 @@ function timeAgo(timestamp) {
 }
 
 function RecentAlerts() {
-  const [alerts, setAlerts] = useState([]);
+  const [alerts, setAlerts] = useState(null);
 
   useEffect(() => {
     const fetchAlerts = () => {
@@ -48,8 +48,14 @@ function RecentAlerts() {
     <div>
       <h2>Recent Alerts</h2>
       <div className="alerts-list">
-        {alerts.length === 0 && <p className="no-alerts">No alerts yet</p>}
-        {alerts.map((alert) => {
+        {!alerts && [1, 2, 3].map((i) => (
+          <div className="alert-item skeleton" key={i}>
+            <div className="skeleton-circle" />
+            <div style={{ flex: 1 }}><div className="skeleton-line wide" /><div className="skeleton-line narrow" /></div>
+          </div>
+        ))}
+        {alerts && alerts.length === 0 && <p className="no-alerts">No alerts yet</p>}
+        {(alerts || []).map((alert) => {
           const severity = severityMap[alert.event_type] || { color: "#6b7280", icon: "info" };
           return (
             <div className="alert-item" key={alert.id}>
