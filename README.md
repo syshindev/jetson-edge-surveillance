@@ -4,7 +4,7 @@ Real-time edge AI video surveillance system powered by **YOLO11n** and **BoTSORT
 
 ![Dashboard Demo](assets/demo-dashboard.gif)
 
-> **Full Demo Video**: [Watch on YouTube](https://youtu.be/ti8eJlAwWpM)
+> **Full Demo Video**: [Watch on YouTube](https://youtu.be/vfH0Grk96vU)
 
 ## Features
 
