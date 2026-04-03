@@ -131,7 +131,7 @@ echo "SECRET_KEY=your-secret-key-here" > src/.env
 
 # Run server
 cd src
-uvicorn main:app --port 8001 --reload
+uvicorn main:app --port 8000 --reload
 ```
 
 ### Frontend Setup
