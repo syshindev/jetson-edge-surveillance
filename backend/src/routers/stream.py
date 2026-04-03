@@ -107,7 +107,7 @@ class StreamProcessor:
         self.cap = cv2.VideoCapture(VIDEO_SOURCES[stream_id])
         self.tracker = create_tracker()
         self.last_annotated = None
-        self.loitering_throttle = {}   # {track_id: last_save_time}
+        self.loitering_throttle = {}   # {zone_name: last_event_time}
         self.intrusion_throttle = {}   # {track_id: last_save_time}
         self.detectors = []
         self._lock = threading.Lock()
@@ -181,10 +181,7 @@ class StreamProcessor:
                 events = d["detector"].check(results)
                 has_event = len(events) > 0
                 if d["type"] == "loitering":
-                    active_ids = {e["track_id"] for e in events}
-                    for tid in list(self.loitering_throttle):
-                        if tid not in active_ids:
-                            del self.loitering_throttle[tid]
+                    pass
 
                 if d["type"] in ("intrusion", "loitering"):
                     pts_poly = np.array(d["polygon"]).reshape((-1, 1, 2))
@@ -200,9 +197,9 @@ class StreamProcessor:
                     track_id = event["track_id"]
                     now = time.time()
                     if d["type"] == "loitering":
-                        # Once per stay: fires once when loitering detected, resets when track leaves zone
-                        if track_id not in self.loitering_throttle:
-                            self.loitering_throttle[track_id] = True
+                        last = self.loitering_throttle.get(d["name"], 0)
+                        if now - last >= 10:
+                            self.loitering_throttle[d["name"]] = now
                             save_event(
                                 event_type=d["type"],
                                 track_id=track_id,
