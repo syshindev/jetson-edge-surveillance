@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import VideoStream from "./VideoStream";
 import EventLog from "./EventLog";
 import Analytics from "./Analytics";
@@ -37,10 +37,8 @@ function App() {
   const [dashStream, setDashStream] = useState(0);
   const [streamOrder, setStreamOrder] = useState([0, 1, 2, 3]);
   const [dragIdx, setDragIdx] = useState(null);
-  const [videoHeight, setVideoHeight] = useState(400);
   const [wsConnected, setWsConnected] = useState(true);
   const [toasts, setToasts] = useState([]);
-  const videoCardRef = useRef(null);
 
   useEffect(() => {
     document.body.style.background = darkMode ? "#1a1a2e" : "#f0f2f5";
@@ -79,15 +77,6 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (videoCardRef.current) {
-        setVideoHeight(videoCardRef.current.offsetHeight);
-      }
-    });
-    if (videoCardRef.current) observer.observe(videoCardRef.current);
-    return () => observer.disconnect();
-  }, [activePage]);
 
   const streamCell = (id, idx, placeholder = false) => {
     if (placeholder) return <div className="card video-stream placeholder"><p>No Source</p></div>;
@@ -151,7 +140,7 @@ function App() {
           <>
             <StatCards />
             <div className="grid">
-              <div className="card video-stream" ref={videoCardRef}>
+              <div className="card video-stream">
                 <div className="dash-stream-header">
                   <h2>Live Stream</h2>
                   <div className="cam-selector">
@@ -168,7 +157,7 @@ function App() {
                 </div>
                 <VideoStream streamId={dashStream} />
               </div>
-              <div className="card alerts-card" style={{ maxHeight: videoHeight }}>
+              <div className="card alerts-card">
                 <RecentAlerts />
               </div>
             </div>

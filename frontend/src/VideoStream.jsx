@@ -56,17 +56,18 @@ function VideoStream({ streamId = 0 }) {
 
     return (
         <div style={{ position: "relative" }}>
-            {!imgLoaded && !webrtcReady && (
-                <div className="video-spinner">
-                    <div className="spinner" />
-                </div>
-            )}
             <img
                 ref={imgRef}
                 src={`${API_BASE}/mjpeg/${streamId}`}
                 onLoad={() => setImgLoaded(true)}
+                onError={() => setImgLoaded(false)}
                 style={{ width: "100%", display: webrtcReady ? "none" : "block" }}
             />
+            {!imgLoaded && !webrtcReady && (
+                <div className="video-spinner" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
+                    <div className="spinner" />
+                </div>
+            )}
             <video
                 ref={videoRef}
                 autoPlay
