@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "./constants";
 
-function VideoStream({ streamId = 0 }) {
+function VideoStream({ streamId = 0, wsConnected = true }) {
     const videoRef = useRef(null);
     const imgRef = useRef(null);
     const [webrtcReady, setWebrtcReady] = useState(false);
-    const [imgLoaded, setImgLoaded] = useState(false);
 
     useEffect(() => {
         const pc = new RTCPeerConnection();
@@ -50,20 +49,17 @@ function VideoStream({ streamId = 0 }) {
         return () => {
             pc.close();
             setWebrtcReady(false);
-            setImgLoaded(false);
         };
     }, [streamId]);
 
     return (
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", minHeight: wsConnected ? 0 : 200 }}>
             <img
                 ref={imgRef}
                 src={`${API_BASE}/mjpeg/${streamId}`}
-                onLoad={() => setImgLoaded(true)}
-                onError={() => setImgLoaded(false)}
                 style={{ width: "100%", display: webrtcReady ? "none" : "block" }}
             />
-            {!imgLoaded && !webrtcReady && (
+            {!wsConnected && !webrtcReady && (
                 <div className="video-spinner" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
                     <div className="spinner" />
                 </div>

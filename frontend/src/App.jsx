@@ -101,7 +101,7 @@ function App() {
         onClick={clickable ? () => setFocusedStream(isFocused ? null : id) : undefined}
         style={{ cursor: draggable ? "grab" : clickable ? "pointer" : "default", position: "relative" }}
       >
-        <VideoStream streamId={id} />
+        <VideoStream streamId={id} wsConnected={wsConnected} />
         <StreamOverlay streamId={id} />
       </div>
     );
@@ -155,7 +155,7 @@ function App() {
                     ))}
                   </div>
                 </div>
-                <VideoStream streamId={dashStream} />
+                <VideoStream streamId={dashStream} wsConnected={wsConnected} />
               </div>
               <div className="card alerts-card">
                 <RecentAlerts />
