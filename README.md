@@ -4,6 +4,8 @@ Real-time edge AI video surveillance system powered by **YOLO11n** and **BoTSORT
 
 ![Dashboard Demo](assets/demo-dashboard.gif)
 
+> **Full Demo Video**: [Watch on YouTube](https://youtu.be/ti8eJlAwWpM)
+
 ## Features
 
 ### AI Pipeline
@@ -193,5 +195,5 @@ docker compose up
 - [ ] Jetson deployment + real camera testing
 - [ ] TensorRT model optimization
 - [ ] Performance tuning (inference speed, memory)
-- [ ] Demo video / GIF
+- [x] Demo video / GIF
 - [ ] VLM integration — Vision-Language Model for natural language event descriptions
