@@ -1,4 +1,4 @@
-# DOBER — AI Surveillance System
+# <img src="frontend/public/favicon.svg" width="32" align="center" alt="DOBER logo"/> DOBER — AI Surveillance System
 
 Real-time edge AI video surveillance system powered by **YOLO11n** and **BoTSORT**, designed for **NVIDIA Jetson Orin Nano Super**. Features object detection, multi-object tracking, event detection, and a full-featured web dashboard.
 
